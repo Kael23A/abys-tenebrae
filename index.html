@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="shortcut icon" href="favicon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recuerda Tus Historias | Archivo de Ficción Imaginativa</title>
+  <meta name="description" content="Archivo de ficción imaginativa. Relatos de terror, cyberpunk, mitos y más. Historias que no deberían existir... pero aquí están.">
+  <meta name="robots" content="index, follow">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Recuerda Tus Historias | Archivo de Ficción Imaginativa">
+  <meta property="og:description" content="Archivo de ficción imaginativa. Relatos de terror, cyberpunk, mitos y más. Historias que no deberían existir... pero aquí están.">
+  <meta property="og:url" content="https://abystenebrae.com/">
+  <meta property="og:image" content="https://abystenebrae.com/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="Recuerda Tus Historias">
+  <link rel="canonical" href="https://abystenebrae.com/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Syne:wght@400;500;700;800&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="rth-shared.css">
+<style>
+/* ── INDEX-SPECIFIC ── */
+
+/* HERO */
+.hero{
+  padding:clamp(3.5rem,8vw,7rem) 0 clamp(2.5rem,5vw,5rem);
+  text-align:center;
+  animation:fadeUp .8s ease both;
+  position:relative;
+}
+.hero-eyebrow{
+  font-family:var(--fm);font-size:clamp(10px,1.1vw,12px);
+  letter-spacing:.26em;text-transform:uppercase;color:var(--muted);
+  margin-bottom:clamp(1.5rem,3vw,2.5rem);
+  display:flex;align-items:center;justify-content:center;gap:1.2rem;
+}
+.hero-eyebrow::before,.hero-eyebrow::after{
+  content:'';display:block;
+  width:clamp(24px,4vw,55px);height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold));
+}
+.hero-eyebrow::after{
+  background:linear-gradient(90deg,var(--gold),transparent);
+}
+
+/* Main title — centred, fits any screen, never overflows */
+.hero-title{
+  font-family:var(--fd);
+  font-size:clamp(2rem,5.5vw,4.2rem);
+  font-weight:800;line-height:1.0;
+  letter-spacing:-.01em;text-transform:uppercase;
+  text-align:center;
+  margin-bottom:clamp(.8rem,1.6vw,1.3rem);
+  max-width:100%;
+  word-break:break-word;
+}
+.hero-title .l1,
+.hero-title .l2{ display:block; color:var(--text); }
+.hero-title .l3{
+  display:block;
+  font-family:var(--fb);font-style:italic;font-weight:300;
+  font-size:.62em;letter-spacing:.06em;
+  color:rgba(232,227,242,0.22);
+  -webkit-text-stroke:1px rgba(232,227,242,0.18);
+}
+
+/* Red underline with gold glow */
+.hero-title::after{
+  content:'';display:block;
+  width:clamp(50px,9vw,100px);height:2px;
+  background:linear-gradient(90deg,
+    transparent, var(--red) 40%, var(--gold-lt) 60%, transparent
+  );
+  margin:clamp(.8rem,1.4vw,1.1rem) auto 0;
+  box-shadow:0 0 18px var(--red-glow), 0 0 30px var(--gold-glow);
+}
+
+.hero-sub{
+  font-size:clamp(.95rem,1.7vw,1.15rem);
+  color:var(--text2);font-style:italic;font-weight:300;
+  max-width:500px;margin:0 auto clamp(1.5rem,3.2vw,3rem);
+  letter-spacing:.01em;
+}
+
+.hero-stats{
+  display:flex;justify-content:center;
+  gap:clamp(1.5rem,4vw,4rem);
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  padding:clamp(.9rem,1.9vw,1.6rem) 0;
+  flex-wrap:wrap;
+  position:relative;
+}
+/* Gold ornamental ticks on stats border */
+.hero-stats::before,.hero-stats::after{
+  content:'◆';
+  position:absolute;top:50%;transform:translateY(-50%);
+  font-size:8px;color:var(--gold);opacity:.5;
+}
+.hero-stats::before{left:0}
+.hero-stats::after{right:0}
+
+.stat{text-align:center;position:relative;padding:0 clamp(.8rem,1.5vw,1.2rem)}
+.stat+.stat::before{
+  content:'';position:absolute;left:0;top:15%;bottom:15%;width:1px;
+  background:linear-gradient(180deg,transparent,rgba(160,120,40,0.35),transparent);
+}
+.stat-n{
+  font-family:var(--fd);font-size:clamp(1.5rem,3.2vw,2.4rem);
+  font-weight:700;color:var(--text);display:block;line-height:1;
+}
+.stat-l{
+  font-family:var(--fm);font-size:clamp(8px,.9vw,10px);
+  letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted);margin-top:5px;display:block;
+}
+
+/* ── CATEGORIES ── */
+.categories{
+  padding:clamp(2rem,4.5vw,4rem) 0 clamp(2.5rem,5.5vw,5.5rem);
+  animation:fadeUp .8s .12s ease both;
+}
+.cards-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));
+  gap:1px;
+  background:rgba(200,200,210,0.10);   /* ceniza clara translúcida */
+  border:1px solid rgba(200,200,210,0.10);
+}
+
+/* Collection card — ornamental */
+.cat-card{
+  background: var(--bg2);
+  background-image: var(--mist);  /* ash-mist overlay */
+  padding:clamp(1.3rem,2.8vw,2.4rem);
+  text-decoration:none;color:var(--text);
+  display:flex;flex-direction:column;gap:1.1rem;
+  transition:background .3s;
+  position:relative;overflow:hidden;
+}
+/* Colour top bar */
+.cat-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  opacity:0;transition:opacity .3s;
+}
+/* Corner L ornament — top left */
+.cat-card::after{
+  content:'';position:absolute;
+  top:8px;left:8px;
+  width:clamp(14px,2.2vw,22px);height:clamp(14px,2.2vw,22px);
+  border-top:1px solid;border-left:1px solid;
+  opacity:.25;transition:opacity .3s;pointer-events:none;
+}
+.cat-card.osc::before{background:linear-gradient(90deg,var(--osc),rgba(160,120,40,0.3),transparent)}
+.cat-card.ano::before{background:linear-gradient(90deg,var(--ano),rgba(160,120,40,0.3),transparent)}
+.cat-card.mit::before{background:linear-gradient(90deg,var(--mit),rgba(160,120,40,0.3),transparent)}
+.cat-card.osc::after{border-color:var(--osc)}
+.cat-card.ano::after{border-color:var(--ano)}
+.cat-card.mit::after{border-color:var(--mit)}
+.cat-card:hover{
+  background:var(--bg3);
+  box-shadow:inset 0 0 40px rgba(0,0,0,0.2);
+}
+.cat-card:hover::before{opacity:1}
+.cat-card:hover::after{opacity:.65}
+
+.cat-num{font-family:var(--fm);font-size:clamp(9px,.95vw,10px);color:var(--faint);letter-spacing:.1em}
+.cat-icon{font-size:clamp(1.4rem,2.5vw,2rem);line-height:1}
+.cat-name{
+  font-family:var(--fd);
+  font-size:clamp(1.3rem,2.8vw,2rem);
+  font-weight:700;text-transform:uppercase;letter-spacing:.04em;line-height:1;
+}
+.cat-card.osc .cat-name{color:var(--osc)}
+.cat-card.ano .cat-name{color:var(--ano)}
+.cat-card.mit .cat-name{color:var(--mit)}
+
+.cat-desc{
+  font-size:clamp(.85rem,1.4vw,.98rem);
+  color:var(--text2);font-style:italic;font-weight:300;line-height:1.62;
+}
+
+.cat-genres{display:flex;flex-wrap:wrap;gap:5px;margin-top:auto}
+.genre-tag{
+  font-family:var(--fm);font-size:clamp(8px,.88vw,10px);
+  padding:3px 10px;letter-spacing:.07em;text-transform:uppercase;border:1px solid;
+  text-decoration:none;     /* for <a> tags */
+  display:inline-block;
+  transition:opacity .2s;
+  cursor:pointer;
+}
+.genre-tag:hover{ opacity:.75; }
+a.genre-tag:hover{ opacity:.75; }
+.cat-card.osc .genre-tag{border-color:var(--osc2);color:var(--osc);background:var(--osc-bg)}
+.cat-card.ano .genre-tag{border-color:var(--ano2);color:var(--ano);background:var(--ano-bg)}
+.cat-card.mit .genre-tag{border-color:var(--mit2);color:var(--mit);background:var(--mit-bg)}
+
+/* CTA button */
+.cat-cta{
+  display:inline-flex;align-items:center;gap:8px;margin-top:.35rem;
+  font-family:var(--fm);font-size:clamp(11px,1.15vw,13px);
+  letter-spacing:.1em;text-transform:uppercase;
+  padding:clamp(10px,1.3vw,13px) clamp(15px,2.2vw,22px);
+  border:1px solid;color:var(--text);text-decoration:none;
+  transition:all .25s;width:fit-content;
+}
+.cat-card.osc .cat-cta{border-color:var(--osc2)}
+.cat-card.ano .cat-cta{border-color:var(--ano2)}
+.cat-card.mit .cat-cta{border-color:var(--mit2)}
+.cat-card.osc:hover .cat-cta{background:var(--osc-bg);border-color:var(--osc);color:var(--osc)}
+.cat-card.ano:hover .cat-cta{background:var(--ano-bg);border-color:var(--ano);color:var(--ano)}
+.cat-card.mit:hover .cat-cta{background:var(--mit-bg);border-color:var(--mit);color:var(--mit)}
+
+/* Comments strip inside card */
+.card-comments{
+  margin-top:.15rem;padding-top:.8rem;
+  border-top:1px solid rgba(255,255,255,0.06);
+}
+.card-comments-label{
+  font-family:var(--fm);font-size:clamp(8px,.85vw,9px);
+  letter-spacing:.18em;text-transform:uppercase;
+  color:var(--gold);opacity:.65;margin-bottom:.4rem;display:block;
+}
+.card-comments-preview{
+  font-family:var(--fb);font-size:clamp(.82rem,1.35vw,.93rem);
+  color:var(--muted);font-style:italic;font-weight:300;
+  line-height:1.52;margin-bottom:.55rem;
+  display:-webkit-box;-webkit-line-clamp:2;
+  -webkit-box-orient:vertical;overflow:hidden;
+}
+.card-comments-link{
+  font-family:var(--fm);font-size:clamp(9px,.9vw,10px);
+  letter-spacing:.1em;text-transform:uppercase;
+  text-decoration:none;border-bottom:1px solid;
+  padding-bottom:1px;transition:opacity .2s;display:inline-block;
+}
+.cat-card.osc .card-comments-link{color:var(--osc);border-color:var(--osc2)}
+.cat-card.ano .card-comments-link{color:var(--ano);border-color:var(--ano2)}
+.cat-card.mit .card-comments-link{color:var(--mit);border-color:var(--mit2)}
+.card-comments-link:hover{opacity:.65}
+
+/* ── LATEST STORIES ── */
+.featured{
+  padding:0 0 clamp(2.5rem,5.5vw,5.5rem);
+  animation:fadeUp .8s .22s ease both;
+}
+.featured-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));
+  gap:1px;background:rgba(200,200,210,0.10);border:1px solid rgba(200,200,210,0.10);
+}
+.story-card{
+  background: var(--bg2);
+  background-image: var(--mist);
+  padding:clamp(1.1rem,2.2vw,1.8rem);
+  text-decoration:none;color:var(--text);
+  transition:background .25s;
+  display:flex;flex-direction:column;gap:.55rem;
+  border-left:2px solid transparent;
+  transition:background .2s,border-color .2s;
+}
+.story-card:hover{background:var(--bg3);border-left-color:var(--red)}
+.story-badge{
+  font-family:var(--fm);font-size:clamp(9px,.9vw,10px);
+  letter-spacing:.1em;text-transform:uppercase;
+  padding:3px 11px;border:1px solid;
+  display:inline-block;width:fit-content;
+}
+.badge-osc{border-color:var(--osc2);color:var(--osc);background:var(--osc-bg)}
+.badge-ano{border-color:var(--ano2);color:var(--ano);background:var(--ano-bg)}
+.badge-mit{border-color:var(--mit2);color:var(--mit);background:var(--mit-bg)}
+.s-title{
+  font-family:var(--fd);font-size:clamp(1.05rem,2vw,1.3rem);
+  font-weight:600;line-height:1.22;color:var(--text);transition:color .2s;
+}
+.story-card:hover .s-title{color:var(--red-lt)}
+.s-preview{
+  font-size:clamp(.84rem,1.4vw,.97rem);
+  color:var(--muted);font-style:italic;font-weight:300;line-height:1.6;
+}
+.s-meta{
+  display:flex;gap:1.1rem;font-family:var(--fm);
+  font-size:clamp(9px,.88vw,10px);
+  letter-spacing:.08em;color:var(--faint);text-transform:uppercase;
+  margin-top:auto;padding-top:.65rem;
+  border-top:1px solid var(--line);
+}
+/* Coming soon card */
+.story-soon{
+  opacity:.65;cursor:default;
+  border-left:2px solid var(--faint)!important;
+}
+.soon-badge{
+  font-family:var(--fm);font-size:clamp(8px,.8vw,9px);
+  letter-spacing:.12em;text-transform:uppercase;
+  color:var(--gold);opacity:.7;margin-left:auto;
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <a href="index.html" class="logo">Recuerda<span>//</span>Historias</a>
+  <nav>
+    <a href="oscuridad.html">Oscuridad</a>
+    <a href="anomalia.html">Anomalía</a>
+    <a href="mitos.html">Mitos</a>
+  </nav>
+</header>
+
+<div class="frame">
+
+  <!-- ══ HERO ══ -->
+  <section class="hero">
+    <p class="hero-eyebrow">Archivo de Ficción Imaginativa</p>
+    <h1 class="hero-title">
+      <span class="l1">Recuerda</span>
+      <span class="l2">Tus</span>
+      <span class="l3">Historias</span>
+    </h1>
+    <p class="hero-sub">Relatos que no deberían existir... pero aquí están.</p>
+    <div class="hero-stats">
+      <div class="stat"><span class="stat-n" id="rth-count">—</span><span class="stat-l">Relatos</span></div>
+      <div class="stat"><span class="stat-n">3</span><span class="stat-l">Colecciones</span></div>
+      <div class="stat"><span class="stat-n" id="rth-mins">—</span><span class="stat-l">De lectura</span></div>
+    </div>
+  </section>
+
+  <!-- ══ COLECCIONES ══ -->
+  <section class="categories">
+    <p class="section-label">Las colecciones</p>
+    <div class="cards-grid">
+
+      <!-- OSCURIDAD -->
+      <div class="cat-card osc">
+        <span class="cat-num">01</span>
+        <div class="cat-icon">🖤</div>
+        <div class="cat-name">Oscuridad</div>
+        <p class="cat-desc">Lo que acecha cuando apagas la pantalla. Miedos que viven en lo cotidiano.</p>
+        <div class="cat-genres">
+          <a href="oscuridad.html#creepypasta" class="genre-tag">Creepypasta</a>
+          <a href="oscuridad.html#terror" class="genre-tag">Terror psicológico</a>
+          <a href="oscuridad.html#paranormal" class="genre-tag">Paranormal</a>
+          <a href="oscuridad.html#suspenso" class="genre-tag">Suspenso</a>
+          <a href="oscuridad.html#maldiciones" class="genre-tag">Maldiciones</a>
+        </div>
+        <a href="oscuridad.html" class="cat-cta">Ver colección →</a>
+        <div class="card-comments">
+          <span class="card-comments-label">Comentarios recientes</span>
+          <p class="card-comments-preview">"Esta historia me quitó el sueño — la parte del audio grabado fue lo más perturbador que leí en meses..."</p>
+          <a href="comentarios-oscuridad.html" class="card-comments-link">Leer todos →</a>
+        </div>
+      </div>
+
+      <!-- ANOMALÍA -->
+      <div class="cat-card ano">
+        <span class="cat-num">02</span>
+        <div class="cat-icon">⚡</div>
+        <div class="cat-name">Anomalía</div>
+        <p class="cat-desc">Crónicas desde realidades paralelas. Futuros donde la tecnología nos superó.</p>
+        <div class="cat-genres">
+          <a href="anomalia.html#cyberpunk" class="genre-tag">Cyberpunk</a>
+          <a href="anomalia.html#distopia" class="genre-tag">Distopía</a>
+          <a href="anomalia.html#temporal" class="genre-tag">Viajes temporales</a>
+          <a href="anomalia.html#ia" class="genre-tag">IA & Máquinas</a>
+          <a href="anomalia.html#alternas" class="genre-tag">Realidades alternas</a>
+        </div>
+        <a href="anomalia.html" class="cat-cta">Ver colección →</a>
+        <div class="card-comments">
+          <span class="card-comments-label">Comentarios recientes</span>
+          <p class="card-comments-preview">"Las crónicas de Anomalía abren preguntas que no puedo dejar de pensar — ¿y si el futuro ya está aquí?..."</p>
+          <a href="comentarios-anomalia.html" class="card-comments-link">Leer todos →</a>
+        </div>
+      </div>
+
+      <!-- MITOS -->
+      <div class="cat-card mit">
+        <span class="cat-num">03</span>
+        <div class="cat-icon">🌀</div>
+        <div class="cat-name">Mitos</div>
+        <p class="cat-desc">Leyendas olvidadas y deidades antiguas caminando por ciudades modernas.</p>
+        <div class="cat-genres">
+          <a href="mitos.html#fantasia" class="genre-tag">Fantasía oscura</a>
+          <a href="mitos.html#magico" class="genre-tag">Realismo mágico</a>
+          <a href="mitos.html#mitologia" class="genre-tag">Mitología</a>
+          <a href="mitos.html#magia" class="genre-tag">Magia ancestral</a>
+          <a href="mitos.html#folklore" class="genre-tag">Folklore</a>
+        </div>
+        <a href="mitos.html" class="cat-cta">Ver colección →</a>
+        <div class="card-comments">
+          <span class="card-comments-label">Comentarios recientes</span>
+          <p class="card-comments-preview">"Los relatos de Mitos me recuerdan que hay cosas antiguas que siguen caminando entre nosotros..."</p>
+          <a href="comentarios-mitos.html" class="card-comments-link">Leer todos →</a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══ ÚLTIMAS HISTORIAS ══ -->
+  <section class="featured">
+    <p class="section-label">Nuevas historias</p>
+    <div class="featured-grid" id="rth-recientes">
+      <!-- Las historias se cargan automáticamente desde rth-historias.js -->
+    </div>
+  </section>
+
+</div><!-- /frame -->
+
+<footer>
+  <p class="footer-copy">© 2026 Recuerda Tus Historias // Evolución digital</p>
+  <p class="footer-copy">Archivo de Ficción Imaginativa</p>
+</footer>
+
+</div><!-- /page -->
+<script src="rth-historias.js"></script>
+<script src="rth-share.js"></script>
+<script src="rth-neon.js"></script>
+</body>
+</html>

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía — Cómo añadir historias | Recuerda Tus Historias</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Syne:wght@400;500;700;800&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f0f11;--bg2:#141414;--bg3:#1a1a1c;
+  --text:#ede9f8;--muted:#8a829a;--faint:#3a3450;
+  --red:#bf3a3a;--gold:#a07828;--gold-lt:#c49838;
+  --ano:#3aaabf;--ano2:#1a6070;
+  --line:rgba(210,208,218,0.09);
+  --fd:'Syne',sans-serif;--fb:'Cormorant Garamond',serif;--fm:'JetBrains Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:18px;line-height:1.8;min-height:100vh;padding:0}
+
+header{
+  padding:1.5rem 3rem;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--line);background:rgba(13,13,15,0.95);
+  position:sticky;top:0;z-index:100;
+}
+.logo{font-family:var(--fd);font-size:13px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--text);text-decoration:none}
+.logo span{color:var(--red)}
+.back{font-family:var(--fm);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s}
+.back:hover{color:var(--text)}
+
+.wrap{max-width:820px;margin:0 auto;padding:4rem 2rem 6rem}
+
+h1{font-family:var(--fd);font-size:clamp(2rem,4vw,3rem);font-weight:800;color:var(--text);margin-bottom:.5rem;line-height:1}
+.subtitle{font-family:var(--fb);font-size:1.1rem;color:var(--muted);font-style:italic;font-weight:300;margin-bottom:3rem}
+
+h2{font-family:var(--fd);font-size:1.3rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--gold-lt);margin:2.5rem 0 1rem}
+h3{font-family:var(--fd);font-size:1rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ano);margin:1.8rem 0 .6rem}
+
+p{color:var(--muted);font-size:1rem;margin-bottom:1rem;line-height:1.8}
+p strong{color:var(--text);font-weight:600}
+
+.step{
+  background:var(--bg2);
+  border:1px solid var(--line);
+  border-left:3px solid var(--gold);
+  padding:1.5rem 1.75rem;
+  margin:1.2rem 0;
+  border-radius:0 4px 4px 0;
+}
+.step-num{
+  font-family:var(--fm);font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--gold);opacity:.7;display:block;margin-bottom:.5rem;
+}
+.step p{margin-bottom:0}
+.step p+p{margin-top:.6rem}
+
+code{
+  font-family:var(--fm);font-size:.82rem;
+  background:rgba(58,170,191,0.08);
+  border:1px solid var(--ano2);
+  color:var(--ano);padding:2px 8px;
+  border-radius:2px;
+}
+
+pre{
+  background:var(--bg3);
+  border:1px solid var(--line);
+  border-left:3px solid var(--ano);
+  padding:1.4rem 1.6rem;
+  margin:1.2rem 0;
+  overflow-x:auto;
+  border-radius:0 4px 4px 0;
+}
+pre code{
+  background:none;border:none;
+  color:#b8dce8;font-size:.82rem;
+  line-height:1.85;padding:0;
+}
+.cm{color:#4a7a6a;font-style:italic}  /* comment */
+.kw{color:#c49838}                    /* keyword/field name */
+.st{color:#a0d88a}                    /* string value */
+.nm{color:#d4a0f0}                    /* number */
+
+.warn{
+  background:rgba(191,58,58,0.07);
+  border:1px solid rgba(191,58,58,0.2);
+  border-left:3px solid var(--red);
+  padding:1rem 1.4rem;margin:1.5rem 0;
+  font-family:var(--fm);font-size:.82rem;
+  color:#d4a0a0;letter-spacing:.03em;line-height:1.7;
+}
+.warn strong{color:var(--red)}
+
+.ok{
+  background:rgba(66,184,122,0.07);
+  border:1px solid rgba(66,184,122,0.2);
+  border-left:3px solid #42b87a;
+  padding:1rem 1.4rem;margin:1.5rem 0;
+  font-family:var(--fm);font-size:.82rem;
+  color:#9ad8b8;letter-spacing:.03em;line-height:1.7;
+}
+.ok strong{color:#42b87a}
+
+.genre-table{width:100%;border-collapse:collapse;margin:1rem 0}
+.genre-table th{
+  font-family:var(--fm);font-size:10px;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--gold);padding:.6rem 1rem;text-align:left;
+  border-bottom:1px solid var(--line);
+}
+.genre-table td{
+  font-family:var(--fm);font-size:.82rem;color:var(--muted);
+  padding:.5rem 1rem;border-bottom:1px solid rgba(255,255,255,0.04);
+}
+.genre-table td code{font-size:.78rem}
+.genre-table tr:hover td{background:rgba(255,255,255,0.015)}
+
+.col-osc{color:var(--red)!important}
+.col-ano{color:var(--ano)!important}
+.col-mit{color:#42b87a!important}
+
+hr{border:none;border-top:1px solid var(--line);margin:2.5rem 0}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="logo">Recuerda<span>//</span>Historias</a>
+  <a href="index.html" class="back">← Volver al archivo</a>
+</header>
+
+<div class="wrap">
+
+  <h1>Guía del archivo</h1>
+  <p class="subtitle">Cómo añadir nuevas historias sin romper nada</p>
+
+  <!-- ══════════════════════════════════════ -->
+  <h2>El único archivo que necesitas editar</h2>
+
+  <p>Toda la web funciona a partir de un solo archivo central:</p>
+  <p><code>rth-historias.js</code></p>
+  <p>Cuando añades una historia ahí, <strong>automáticamente</strong> aparece en la lista de su colección, en las historias recientes de la portada, y el contador se actualiza solo. No tienes que tocar ningún otro archivo.</p>
+
+  <div class="ok">
+    <strong>✓ REGLA DE ORO:</strong> Cada historia nueva = un bloque nuevo en <code>rth-historias.js</code> + su archivo HTML.
+  </div>
+
+  <hr>
+
+  <!-- ══════════════════════════════════════ -->
+  <h2>Paso a paso</h2>
+
+  <div class="step">
+    <span class="step-num">Paso 01 — Escribe o recibe la historia en HTML</span>
+    <p>Cada historia tiene su propio archivo <code>.html</code>. Usa como plantilla el archivo <code>la-voz-del-numero-equivocado.html</code> (Oscuridad) o <code>el-ultimo-turno.html</code> (Anomalía).</p>
+    <p>El nombre del archivo debe ser: palabras en minúsculas separadas por guiones. Sin espacios, sin acentos. Ejemplo: <code>el-susurro-del-rio.html</code></p>
+  </div>
+
+  <div class="step">
+    <span class="step-num">Paso 02 — Abre rth-historias.js</span>
+    <p>Busca esta línea al inicio del array:</p>
+    <p><code>/* ══ AÑADE AQUÍ ARRIBA LAS NUEVAS ══ */</code></p>
+    <p>Pega tu bloque <strong>justo después de esa línea</strong>, antes de los bloques existentes. Las más recientes van primero.</p>
+  </div>
+
+  <div class="step">
+    <span class="step-num">Paso 03 — Copia este bloque y rellena los campos</span>
+  </div>
+
+  <pre><code><span class="cm">/* ══ NUEVA HISTORIA ══ */</span>
+{
+  <span class="kw">id</span>:        <span class="st">"nombre-del-archivo"</span>,        <span class="cm">// sin .html</span>
+  <span class="kw">titulo</span>:    <span class="st">"Título completo"</span>,
+  <span class="kw">gancho</span>:    <span class="st">"Frase que engancha al lector..."</span>,
+  <span class="kw">coleccion</span>: <span class="st">"oscuridad"</span>,                  <span class="cm">// oscuridad | anomalia | mitos</span>
+  <span class="kw">genero</span>:    <span class="st">"creepypasta"</span>,               <span class="cm">// ver tabla abajo</span>
+  <span class="kw">minutos</span>:   <span class="nm">7</span>,                            <span class="cm">// número sin comillas</span>
+  <span class="kw">etiquetas</span>: [<span class="st">"Creepypasta"</span>, <span class="st">"Paranormal"</span>]  <span class="cm">// máximo 3</span>
+},</code></pre>
+
+  <div class="warn">
+    <strong>⚠ IMPORTANTE:</strong> La coma al final del bloque <code>},</code> es obligatoria si hay más historias después. El último bloque del array NO lleva coma.
+  </div>
+
+  <div class="step">
+    <span class="step-num">Paso 04 — Historia aún sin página terminada</span>
+    <p>Si quieres que aparezca como "Próximamente" sin ser clickeable, añade este campo extra:</p>
+    <p><code>proximo: true</code></p>
+    <p>Cuando la página esté lista, simplemente <strong>borra esa línea</strong>. Se activa sola.</p>
+  </div>
+
+  <div class="step">
+    <span class="step-num">Paso 05 — Sube los archivos a Netlify</span>
+    <p>Siempre sube <strong>juntos</strong>: el <code>.html</code> de la historia nueva + el <code>rth-historias.js</code> actualizado. Nada más. El resto de la web no necesita cambios.</p>
+  </div>
+
+  <hr>
+
+  <!-- ══════════════════════════════════════ -->
+  <h2>Tabla de géneros</h2>
+  <p>El campo <code>genero</code> debe ser exactamente uno de estos valores:</p>
+
+  <table class="genre-table">
+    <tr>
+      <th>Colección</th>
+      <th>Nombre visible</th>
+      <th>Valor para <code>genero</code></th>
+    </tr>
+    <tr><td class="col-osc">Oscuridad</td><td>Creepypasta</td><td><code>creepypasta</code></td></tr>
+    <tr><td class="col-osc">Oscuridad</td><td>Terror psicológico</td><td><code>terror</code></td></tr>
+    <tr><td class="col-osc">Oscuridad</td><td>Paranormal</td><td><code>paranormal</code></td></tr>
+    <tr><td class="col-osc">Oscuridad</td><td>Suspenso</td><td><code>suspenso</code></td></tr>
+    <tr><td class="col-osc">Oscuridad</td><td>Maldiciones urbanas</td><td><code>maldiciones</code></td></tr>
+    <tr><td class="col-ano">Anomalía</td><td>Cyberpunk</td><td><code>cyberpunk</code></td></tr>
+    <tr><td class="col-ano">Anomalía</td><td>Distopía</td><td><code>distopia</code></td></tr>
+    <tr><td class="col-ano">Anomalía</td><td>Viajes temporales</td><td><code>temporal</code></td></tr>
+    <tr><td class="col-ano">Anomalía</td><td>IA & Máquinas</td><td><code>ia</code></td></tr>
+    <tr><td class="col-ano">Anomalía</td><td>Realidades alternas</td><td><code>alternas</code></td></tr>
+    <tr><td class="col-mit">Mitos</td><td>Fantasía oscura</td><td><code>fantasia</code></td></tr>
+    <tr><td class="col-mit">Mitos</td><td>Realismo mágico</td><td><code>magico</code></td></tr>
+    <tr><td class="col-mit">Mitos</td><td>Mitología</td><td><code>mitologia</code></td></tr>
+    <tr><td class="col-mit">Mitos</td><td>Magia ancestral</td><td><code>magia</code></td></tr>
+    <tr><td class="col-mit">Mitos</td><td>Folklore</td><td><code>folklore</code></td></tr>
+  </table>
+
+  <hr>
+
+  <!-- ══════════════════════════════════════ -->
+  <h2>Estructura del HTML de una historia</h2>
+  <p>Dentro de <code class="story-body"</code> hay cuatro clases especiales para formatear el texto:</p>
+
+  <h3>.dialogo</h3>
+  <p>Para líneas de diálogo de personajes humanos. Aparece en cursiva con borde izquierdo.</p>
+  <pre><code>&lt;p class="<span class="kw">dialogo</span>"&gt;—Aquí va lo que dice el personaje.&lt;/p&gt;</code></pre>
+
+  <h3>.aria / .tension</h3>
+  <p>Para voces de IA o momentos de giro dramático. Más luminoso, destaca en el color de la colección.</p>
+  <pre><code>&lt;p class="<span class="kw">tension</span>"&gt;El teléfono había estado apagado toda la noche.&lt;/p&gt;</code></pre>
+
+  <h3>.noche</h3>
+  <p>Para marcas de tiempo o separadores entre secciones. Aparece en fuente monoespaciada discreta.</p>
+  <pre><code>&lt;span class="<span class="kw">noche</span>"&gt;// Segunda noche — 1:12 a.m.&lt;/span&gt;</code></pre>
+
+  <h3>.remate</h3>
+  <p>Para el párrafo final, el cierre de la historia. Aparece separado, en cursiva y tono más suave.</p>
+  <pre><code>&lt;p class="<span class="kw">remate</span>"&gt;Y nadie volvió a saber de él.&lt;/p&gt;</code></pre>
+
+  <h3>&lt;hr&gt;</h3>
+  <p>Una línea horizontal fina para separar secciones dentro de la historia.</p>
+  <pre><code>&lt;<span class="kw">hr</span>&gt;</code></pre>
+
+  <hr>
+
+  <!-- ══════════════════════════════════════ -->
+  <h2>Checklist antes de subir</h2>
+
+  <div class="ok">
+    <strong>✓</strong> El archivo .html de la historia tiene nombre sin espacios ni acentos<br>
+    <strong>✓</strong> El campo <code>id</code> en rth-historias.js coincide exactamente con el nombre del archivo<br>
+    <strong>✓</strong> El bloque nuevo va AL INICIO del array (antes de los existentes)<br>
+    <strong>✓</strong> Si hay más bloques después, el tuyo termina con <code>},</code> (con coma)<br>
+    <strong>✓</strong> Subiste AMBOS archivos: el .html + rth-historias.js
+  </div>
+
+  <div class="warn">
+    <strong>✗ NO tocar:</strong> rth-shared.css, rth-neon.js, index.html, oscuridad.html, anomalia.html, mitos.html — a menos que sea para corregir algo específico. Un error ahí puede afectar toda la web.
+  </div>
+
+</div>
+
+<footer style="border-top:1px solid rgba(210,208,218,0.09);padding:1.5rem 3rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem">
+  <span style="font-family:var(--fm);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)">© 2026 Recuerda Tus Historias</span>
+  <a href="index.html" style="font-family:var(--fm);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-decoration:none">← Volver al archivo</a>
+</footer>
+
+</body>
+</html>

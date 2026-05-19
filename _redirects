@@ -1,0 +1,10 @@
+# Clean URL redirects
+/oscuridad          /oscuridad.html       200
+/anomalia           /anomalia.html        200
+/mitos              /mitos.html           200
+/la-voz-del-numero-equivocado  /la-voz-del-numero-equivocado.html  200
+/comentarios-oscuridad  /comentarios-oscuridad.html  200
+/comentarios-anomalia   /comentarios-anomalia.html   200
+/comentarios-mitos      /comentarios-mitos.html      200
+# 404 fallback
+/*                  /index.html           404

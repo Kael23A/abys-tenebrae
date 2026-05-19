@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Página no encontrada | Recuerda Tus Historias</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Syne:wght@400;500;700;800&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="rth-shared.css">
+<style>
+:root{--accent:var(--red);--accent2:var(--osc2);--accent-bg:var(--red-bg);--accent-glow:var(--red-glow)}
+.notfound{
+  min-height:80vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;padding:3rem var(--pad);
+}
+.err-code{
+  font-family:var(--fd);font-size:clamp(5rem,18vw,12rem);
+  font-weight:800;line-height:1;
+  color:transparent;-webkit-text-stroke:1px rgba(191,58,58,0.4);
+  margin-bottom:1.5rem;letter-spacing:-.04em;
+}
+.err-title{
+  font-family:var(--fb);font-size:clamp(1.2rem,3vw,2rem);
+  font-style:italic;font-weight:300;color:var(--text2);
+  margin-bottom:1rem;
+}
+.err-sub{
+  font-family:var(--fm);font-size:clamp(10px,1.2vw,13px);
+  letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:2.5rem;
+}
+</style>
+</head>
+<body>
+<div class="page">
+<header>
+  <a href="index.html" class="logo">Recuerda<span>//</span>Historias</a>
+  <nav>
+    <a href="oscuridad.html">Oscuridad</a>
+    <a href="anomalia.html">Anomalía</a>
+    <a href="mitos.html">Mitos</a>
+  </nav>
+</header>
+<div class="notfound">
+  <p class="err-code">404</p>
+  <p class="err-title">Esta página se perdió en la oscuridad.</p>
+  <p class="err-sub">El relato que buscas no existe... o ya no está aquí.</p>
+  <a href="index.html" class="btn btn-primary">← Volver al archivo</a>
+</div>
+<footer>
+  <p class="footer-copy">© 2026 Recuerda Tus Historias</p>
+</footer>
+</div>
+<script src="rth-neon.js"></script>
+</body>
+</html>

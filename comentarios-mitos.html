@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="shortcut icon" href="favicon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comentarios — Mitos | Recuerda Tus Historias</title>
+  <meta name="description" content="Comentarios de los lectores sobre las historias de Mitos.">
+  <meta name="robots" content="index, follow">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Comentarios — Mitos | Recuerda Tus Historias">
+  <meta property="og:description" content="Comentarios de los lectores sobre las historias de Mitos.">
+  <meta property="og:url" content="https://abystenebrae.com/comentarios-mitos">
+  <meta property="og:image" content="https://abystenebrae.com/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="Recuerda Tus Historias">
+  <link rel="canonical" href="https://abystenebrae.com/comentarios-mitos">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Syne:wght@400;500;700;800&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="rth-shared.css">
+<style>
+:root{--accent:var(--mit);--accent2:var(--mit2);--accent-bg:var(--mit-bg);--accent-glow:rgba(77,219,138,0.18)}
+body::before{background:radial-gradient(ellipse 90% 50% at 50% 0%,rgba(77,219,138,0.05) 0%,transparent 65%)}
+
+.comments-page{max-width:min(780px,94vw);margin:0 auto;padding:clamp(2.5rem,5vw,5rem) var(--pad) clamp(3rem,6vw,6rem)}
+.c-header{margin-bottom:clamp(1.8rem,4vw,3rem);text-align:center}
+.c-title{font-family:var(--fd);font-size:clamp(1.8rem,4vw,3rem);font-weight:800;text-transform:uppercase;color:var(--accent);margin-bottom:.5rem}
+.c-sub{font-family:var(--fb);font-size:clamp(.9rem,1.5vw,1.05rem);color:var(--muted);font-style:italic;font-weight:300}
+
+/* Story filter tabs — let readers filter comments by story */
+.story-tabs{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:clamp(1.5rem,3vw,2.5rem);padding-bottom:clamp(1rem,2vw,1.5rem);border-bottom:1px solid var(--line)}
+.story-tab{font-family:var(--fm);font-size:clamp(9px,1vw,11px);letter-spacing:.1em;text-transform:uppercase;padding:5px 12px;border:1px solid var(--faint);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;text-decoration:none}
+.story-tab:hover{border-color:var(--accent);color:var(--accent)}
+.story-tab.active{border-color:var(--accent);color:var(--accent);background:var(--accent-bg)}
+
+/* Story label above Disqus — shows which story thread is open */
+.disqus-story-label{
+  font-family:var(--fm);font-size:clamp(9px,1vw,11px);
+  letter-spacing:.18em;text-transform:uppercase;
+  color:var(--faint);margin-bottom:1.2rem;
+  display:flex;align-items:center;gap:.8rem
+}
+.disqus-story-label strong{color:var(--accent);font-weight:400}
+
+#disqus_thread{min-height:300px}
+/* Override Disqus dark mode to match site */
+#disqus_thread a{color:var(--accent)!important}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <a href="index.html" class="logo">Recuerda<span>//</span>Historias</a>
+  <nav>
+    <a href="oscuridad.html">Oscuridad</a>
+    <a href="anomalia.html">Anomalía</a>
+    <a href="mitos.html" class="active">Mitos</a>
+  </nav>
+</header>
+<div class="accent-bar"></div>
+
+<div class="frame">
+  <div class="comments-page">
+
+    <p class="breadcrumb">
+      <a href="index.html">Inicio</a><span>/</span>
+      <a href="mitos.html">Mitos</a><span>/</span>
+      Comentarios
+    </p>
+
+    <div class="c-header">
+      <h1 class="c-title">Comentarios</h1>
+      <p class="c-sub">Mitos — lo que los lectores dejaron entre leyendas</p>
+    </div>
+
+    <!-- ── STORY FILTER TABS ──
+         Each tab loads the Disqus thread for that specific story.
+         Add a new tab + data-url for each story you publish.
+         The identifier must match exactly what you set in each historia page. -->
+    <div class="story-tabs">
+      <button class="story-tab active"
+        data-id="mitos-general"
+        data-url="https://abystenebrae.com/comentarios-mitos.html"
+        data-title="Comentarios generales — Mitos"
+        onclick="loadDisqus(this)">
+        Todos
+      </button>
+      <button class="story-tab"
+        data-id="mitos-historia-pendiente"
+        data-url="https://abystenebrae.com/mitos.html"
+        data-title="Primera historia de Mitos (próximamente)"
+        onclick="loadDisqus(this)">
+        Primera historia (próxima)
+      </button>
+      <!-- PLANTILLA para agregar más historias:
+      <button class="story-tab"
+        data-id="IDENTIFICADOR-UNICO-DE-HISTORIA"
+        data-url="https://abystenebrae.com/nombre-archivo.html"
+        data-title="Título visible de la historia"
+        onclick="loadDisqus(this)">
+        Título de la historia
+      </button>
+      -->
+    </div>
+
+    <!-- Label showing current thread -->
+    <div class="disqus-story-label">
+      <span>Leyendo comentarios de:</span>
+      <strong id="current-story-label">Todos — Oscuridad</strong>
+    </div>
+
+    <!-- Disqus thread container -->
+    <div id="disqus_thread"></div>
+
+  </div>
+</div><!-- /frame -->
+
+<footer>
+  <p class="footer-copy">© 2026 Recuerda Tus Historias</p>
+  <a href="mitos.html" class="btn btn-ghost" style="font-size:clamp(11px,1.2vw,13px)">← Volver a Mitos</a>
+</footer>
+
+</div><!-- /page -->
+
+<script src="rth-share.js"></script>
+<script src="rth-neon.js"></script>
+<script>
+// ════════════════════════════════════════════════════
+//  DISQUS LOADER
+//  Replaces the thread dynamically when switching tabs.
+//  REPLACE 'recuerdatushistorias' with your actual
+//  Disqus shortname (the one from your Disqus dashboard).
+// ════════════════════════════════════════════════════
+var DISQUS_SHORTNAME = 'recuerdatushistorias'; // ← CAMBIAR AQUÍ
+
+var disqusLoaded = false;
+
+function loadDisqus(btn){
+  // Highlight tab
+  document.querySelectorAll('.story-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+
+  var identifier = btn.dataset.id;
+  var url        = btn.dataset.url;
+  var title      = btn.dataset.title;
+
+  document.getElementById('current-story-label').textContent = title;
+
+  if(!disqusLoaded){
+    // First load — inject Disqus script
+    window.disqus_config = function(){
+      this.page.url        = url;
+      this.page.identifier = identifier;
+      this.page.title      = title;
+    };
+    var d = document, s = d.createElement('script');
+    s.src = 'https://' + DISQUS_SHORTNAME + '.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    disqusLoaded = true;
+  } else {
+    // Subsequent loads — reset Disqus to new thread
+    if(window.DISQUS){
+      DISQUS.reset({
+        reload: true,
+        config: function(){
+          this.page.url        = url;
+          this.page.identifier = identifier;
+          this.page.title      = title;
+        }
+      });
+    }
+  }
+  // Smooth scroll to thread
+  document.getElementById('disqus_thread').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// Auto-load default (general) thread on page open
+window.addEventListener('DOMContentLoaded', ()=>{
+  var defaultTab = document.querySelector('.story-tab.active');
+  if(defaultTab) loadDisqus(defaultTab);
+
+  // If URL has ?story= param, auto-switch to that story tab
+  var params = new URLSearchParams(location.search);
+  var story  = params.get('story');
+  if(story){
+    var target = document.querySelector(`.story-tab[data-id="${story}"]`);
+    if(target) loadDisqus(target);
+  }
+});
+</script>
+</body>
+</html>
