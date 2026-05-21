@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Abys Tenebrae — Portal de narrativa oscura y literatura de penumbra">
+  <meta property="og:title"       content="Abys Tenebrae">
+  <meta property="og:description" content="Portal de narrativa oscura y literatura de penumbra">
+  <meta property="og:type"        content="website">
+  <meta name="theme-color"        content="#0a0c0b">
+
+  <title>Abys Tenebrae</title>
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='10' fill='none' stroke='%237ecfc0' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%237ecfc0'/%3E%3C/svg%3E">
+</head>
+<body>
+
+  <!-- ░ Barra de progreso de lectura ░ -->
+  <div id="progress-bar"></div>
+
+  <!-- ░ Indicador de auto scroll ░ -->
+  <div id="autoscroll-indicator" title="Auto scroll activo · Toca para pausar">▼</div>
+
+  <!-- ░ Toast ░ -->
+  <div id="toast"></div>
+
+  <!-- ░ Botón de encendido — retorno al inicio del relato ░ -->
+  <div id="btn-retorno-top" title="Volver al inicio del relato">
+    <div class="encendido-orb"></div>
+    <div class="encendido-line"></div>
+  </div>
+
+  <!-- ░░░ HEADER ░░░ -->
+  <header id="site-header">
+    <div id="logotype"><span class="dot">◈</span>ABYS TENEBRAE</div>
+    <div class="header-right">
+      <!-- Búsqueda -->
+      <button id="btn-buscar" title="Buscar historias">⌕</button>
+      <!-- Historia aleatoria -->
+      <button id="btn-aleatorio">Azar</button>
+    </div>
+  </header>
+
+  <!-- Buscador desplegable -->
+  <div id="buscador-wrap">
+    <input id="buscador-input" type="text" placeholder="Buscar por título, género, pilar…" autocomplete="off">
+  </div>
+
+
+  <!-- ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+       APLICACIÓN
+  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ -->
+  <div id="app">
+
+    <!-- ════════════════════════════════
+         VISTA: HOME
+    ════════════════════════════════ -->
+    <div id="vista-home" class="vista">
+
+      <!-- Hero -->
+      <section id="hero">
+        <p class="hero-eyebrow">Literatura oscura · Narrativa de penumbra</p>
+
+        <h1 class="hero-title">
+          <span class="accent">Abys</span> Tenebrae
+        </h1>
+
+        <p class="hero-sub">
+          Relatos que habitan en los márgenes de lo posible
+        </p>
+
+        <div class="hero-divider"></div>
+
+        <!-- Stats globales -->
+        <div class="hero-stats" id="hero-stats">
+          <!-- Inyectado por engine.js -->
+        </div>
+
+        <!-- Los 4 Pilares -->
+        <div id="pilares-grid">
+          <!-- Inyectado por engine.js -->
+        </div>
+      </section>
+
+      <!-- Flujo: Últimas + Tendencias -->
+      <section id="zona-flujo">
+        <!-- Inyectado por engine.js -->
+      </section>
+
+      <!-- Pulso: Comentarios -->
+      <section id="zona-pulso">
+        <!-- Inyectado por engine.js -->
+      </section>
+
+    </div>
+    <!-- /vista-home -->
+
+
+    <!-- ════════════════════════════════
+         VISTA: PILAR
+    ════════════════════════════════ -->
+    <div id="vista-pilar" class="vista">
+      <!-- Inyectado por engine.js -->
+    </div>
+
+
+    <!-- ════════════════════════════════
+         VISTA: LECTURA
+    ════════════════════════════════ -->
+    <div id="vista-lectura" class="vista">
+      <div id="lectura-contenido">
+        <!-- HTML puro de la historia inyectado aquí -->
+      </div>
+    </div>
+
+  </div>
+  <!-- /app -->
+
+
+  <!-- ░ Capa de interacción flotante (pie de lectura) ░ -->
+  <div id="capa-interaccion">
+    <!-- Me gusta · Compartir · Volver — inyectados al abrir historia -->
+  </div>
+
+
+  <!-- ░ Modal de compartir ░ -->
+  <div id="share-modal">
+    <div id="share-card">
+      <!-- Miniatura CSS + URL + botones — inyectados por engine.js -->
+    </div>
+  </div>
+
+
+  <!-- ░░░ MOTOR ░░░ -->
+  <script src="engine.js"></script>
+
+</body>
+</html>
