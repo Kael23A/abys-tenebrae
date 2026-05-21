@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Abys Tenebrae — Portal de narrativa oscura y literatura de penumbra">
+  <meta property="og:title" content="Abys Tenebrae">
+  <meta property="og:description" content="Donde la mente se dobla y la realidad sangra">
+  <meta property="og:type" content="website">
+
+  <title>Abys Tenebrae</title>
+
+  <!-- Identidad Visual -->
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Favicon inline SVG -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='10' fill='none' stroke='%237ecfc0' stroke-width='2'/><circle cx='16' cy='16' r='3' fill='%237ecfc0'/></svg>">
+</head>
+<body>
+
+  <!-- ═══ Barra de Progreso de Lectura ═══ -->
+  <div id="progress-bar"></div>
+
+  <!-- ═══ Indicador Auto Scroll ═══ -->
+  <div id="autoscroll-indicator" title="Desplazamiento automático activo — clic para pausar">▼</div>
+
+  <!-- ═══ Toast de Notificaciones ═══ -->
+  <div id="toast"></div>
+
+  <!-- ═══ Botón de Encendido (Retorno al inicio del texto) ═══ -->
+  <div id="btn-retorno-top" title="Volver al inicio del relato">
+    <div class="encendido-orb"></div>
+    <div class="encendido-line"></div>
+  </div>
+
+  <!-- ═══ Header ═══ -->
+  <header id="site-header">
+    <div class="logotype" id="logotype">
+      <span>◈</span>ABYS TENEBRAE
+    </div>
+    <div style="font-family: var(--font-mono); font-size: 0.58rem; letter-spacing: 0.2em; color: var(--text-faint);">V.2.0</div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════
+       APLICACIÓN PRINCIPAL
+  ═══════════════════════════════════════════ -->
+  <div id="app">
+
+    <!-- ── VISTA: HOME ────────────────────────── -->
+    <div id="vista-home" class="vista">
+
+      <!-- Hero -->
+      <section id="hero">
+        <p class="hero-eyebrow">Literatura oscura · Narrativa de penumbra</p>
+        <h1 class="hero-title">
+          <span class="glimmer">Abys</span> Tenebrae
+        </h1>
+        <p class="hero-sub">
+          Un portal de relatos que habitan en los márgenes de lo posible
+        </p>
+        <div class="hero-divider"></div>
+
+        <!-- Los 4 Pilares -->
+        <div id="pilares-grid">
+          <!-- Inyectado por engine.js -->
+        </div>
+      </section>
+
+      <!-- Zona Flujo: Últimas + Tendencias -->
+      <section id="zona-flujo">
+        <!-- Inyectado por engine.js -->
+      </section>
+
+      <!-- Zona Pulso: Comentarios -->
+      <section id="zona-pulso">
+        <!-- Inyectado por engine.js -->
+      </section>
+
+    </div>
+    <!-- /vista-home -->
+
+
+    <!-- ── VISTA: PILAR ───────────────────────── -->
+    <div id="vista-pilar" class="vista" style="display:none;">
+      <!-- Inyectado por engine.js al hacer clic en un Pilar -->
+    </div>
+
+
+    <!-- ── VISTA: LECTURA ─────────────────────── -->
+    <div id="vista-lectura" class="vista" style="display:none;">
+      <div id="lectura-contenido">
+        <!-- El HTML puro de la historia se inyecta aquí -->
+      </div>
+    </div>
+
+  </div>
+  <!-- /app -->
+
+
+  <!-- ═══ Capa de Interacción (flotante al pie) ═══ -->
+  <div id="capa-interaccion">
+    <!-- Me gusta · Compartir · Volver — inyectados por engine.js al abrir historia -->
+  </div>
+
+
+  <!-- ═══ Motor Central ═══ -->
+  <script src="engine.js"></script>
+
+</body>
+</html>
