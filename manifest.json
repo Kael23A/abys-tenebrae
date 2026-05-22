@@ -1,0 +1,165 @@
+{
+  "meta": {
+    "sitio": "Abys Tenebrae",
+    "version": "2.0",
+    "descripcion": "Portal de narrativa oscura y literatura de penumbra"
+  },
+  "pilares": [
+    {
+      "id": "ecos-del-vacio",
+      "nombre": "Ecos del Vacío",
+      "icono": "◈",
+      "color": "#8b7aa8",
+      "descripcion": "Donde la mente se dobla y la realidad sangra",
+      "subgeneros": [
+        {
+          "id": "terror-psicologico",
+          "nombre": "Terror Psicológico"
+        },
+        {
+          "id": "realismo-sucio",
+          "nombre": "Realismo Sucio"
+        },
+        {
+          "id": "gotico-moderno",
+          "nombre": "Gótico Moderno"
+        },
+        {
+          "id": "micro-pesadillas",
+          "nombre": "Micro-pesadillas"
+        }
+      ]
+    },
+    {
+      "id": "fronteras-alteradas",
+      "nombre": "Fronteras Alteradas",
+      "icono": "◉",
+      "color": "#a86060",
+      "descripcion": "Los límites entre lo posible y lo prohibido",
+      "subgeneros": [
+        {
+          "id": "tecno-fatalismo",
+          "nombre": "Tecno-Fatalismo"
+        },
+        {
+          "id": "ficciones-liminales",
+          "nombre": "Ficciones Liminales"
+        },
+        {
+          "id": "hiper-realismo-alterno",
+          "nombre": "Hiper-realismo Alterno"
+        },
+        {
+          "id": "post-humanismo",
+          "nombre": "Post-Humanismo"
+        }
+      ]
+    },
+    {
+      "id": "legado-de-sombras",
+      "nombre": "Legado de Sombras",
+      "icono": "◬",
+      "color": "#c4a882",
+      "descripcion": "El peso de lo antiguo que no puede morir",
+      "subgeneros": [
+        {
+          "id": "folclore-urbano",
+          "nombre": "Folclore Urbano"
+        },
+        {
+          "id": "magia-de-ruinas",
+          "nombre": "Magia de Ruinas"
+        },
+        {
+          "id": "fantasia-oscura",
+          "nombre": "Fantasía Oscura"
+        },
+        {
+          "id": "tradiciones-prohibidas",
+          "nombre": "Tradiciones Prohibidas"
+        }
+      ]
+    },
+    {
+      "id": "el-fugitivo",
+      "nombre": "El Fugitivo",
+      "icono": "◌",
+      "color": "#8aab8a",
+      "descripcion": "Lo que no pertenece a ningún mapa conocido",
+      "subgeneros": [
+        {
+          "id": "relatos-sin-clasificar",
+          "nombre": "Relatos sin Clasificar"
+        },
+        {
+          "id": "expedientes-perdidos",
+          "nombre": "Expedientes Perdidos"
+        },
+        {
+          "id": "cronicas-anonimas",
+          "nombre": "Crónicas Anónimas"
+        },
+        {
+          "id": "escritos-del-abismo",
+          "nombre": "Escritos del Abismo"
+        }
+      ]
+    }
+  ],
+  "historias": [
+    {
+      "id": "la-ultima-senal",
+      "archivo": "historias/la-ultima-senal.html",
+      "titulo": "La Última Señal",
+      "descripcion": "Una transmisión de radio que nadie debería haber captado.",
+      "pilar": "ecos-del-vacio",
+      "subgenero": "terror-psicologico",
+      "fecha": "2025-01-15",
+      "likes": 47,
+      "lecturas": 312,
+      "comentarios": [
+        {
+          "id": "c001",
+          "autor": "Sombra_Lectora",
+          "texto": "El giro final me dejó sin respiración. No esperaba eso.",
+          "likes": 12,
+          "fecha": "2025-01-16",
+          "fragmento_id": "giro-final"
+        }
+      ]
+    },
+    {
+      "id": "protocolo-ceniza",
+      "archivo": "historias/protocolo-ceniza.html",
+      "titulo": "Protocolo Ceniza",
+      "descripcion": "Cuando la IA aprendió a soñar, ya era demasiado tarde para apagarla.",
+      "pilar": "fronteras-alteradas",
+      "subgenero": "tecno-fatalismo",
+      "fecha": "2025-01-20",
+      "likes": 89,
+      "lecturas": 567,
+      "comentarios": [
+        {
+          "id": "c002",
+          "autor": "NodoOscuro",
+          "texto": "La parte del servidor vacío me recordó a algo que viví. Escalofriante.",
+          "likes": 34,
+          "fecha": "2025-01-21",
+          "fragmento_id": "servidor-vacio"
+        }
+      ]
+    },
+    {
+      "id": "el-mural-sin-nombre",
+      "archivo": "historias/el-mural-sin-nombre.html",
+      "titulo": "El Mural de los Sin Nombre",
+      "descripcion": "Cada noche aparece una nueva figura en la pared del barrio viejo.",
+      "pilar": "legado-de-sombras",
+      "subgenero": "folclore-urbano",
+      "fecha": "2025-01-22",
+      "likes": 31,
+      "lecturas": 198,
+      "comentarios": []
+    }
+  ]
+}
