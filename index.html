@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Abys Tenebrae — Donde los límites de la realidad se disuelven en el umbral de lo innombrable.">
+  <meta property="og:title"       content="Abys Tenebrae">
+  <meta property="og:description" content="Donde los límites de la realidad se disuelven en el umbral de lo innombrable.">
+  <meta property="og:type"        content="website">
+  <meta property="og:image"       content="https://www.abystenebrae.com/og-image.webp">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height"content="630">
+  <meta property="og:image:type"  content="image/webp">
+  <meta name="twitter:card"       content="summary_large_image">
+  <meta name="twitter:image"      content="https://www.abystenebrae.com/og-image.png">
+  <meta name="theme-color"        content="#0a0c0b">
+  <title>Abys Tenebrae</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='10' fill='none' stroke='%23c4a882' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%23c4a882'/%3E%3C/svg%3E">
+</head>
+<body>
+
+  <!-- Barra de progreso de lectura -->
+  <div id="progress-bar"></div>
+
+  <!-- Auto scroll indicador -->
+  <div id="autoscroll-indicator" title="Auto scroll · Toca para pausar">▼</div>
+
+  <!-- Toast -->
+  <div id="toast"></div>
+
+  <!-- Botón encendido lateral (retorno top en lectura) -->
+  <div id="btn-retorno-top" title="Volver al inicio del relato">
+    <div class="encendido-orb"></div>
+    <div class="encendido-line"></div>
+  </div>
+
+  <!-- Flechas navegación anterior/siguiente (lectura) -->
+  <button id="nav-anterior" class="nav-flecha" title="Historia anterior" aria-label="Historia anterior">
+    <span class="nav-flecha-inner">‹</span>
+  </button>
+  <button id="nav-siguiente" class="nav-flecha" title="Historia siguiente" aria-label="Historia siguiente">
+    <span class="nav-flecha-inner">›</span>
+  </button>
+
+  <!-- Botón biblioteca (todas las páginas, abajo derecha) -->
+  <button id="btn-biblioteca" title="Mi Biblioteca">
+    <span class="bib-icon">◫</span>
+    <span class="bib-badge" id="bib-badge">0</span>
+  </button>
+
+  <!-- Navegación historial: botones flotantes centrados en la parte baja -->
+  <div id="nav-historial">
+    <button id="btn-volver-flotante" title="Volver atrás">← Volver</button>
+    <button id="btn-avanzar-flotante" title="Avanzar">Adelante →</button>
+  </div>
+
+  <!-- Panel biblioteca -->
+  <div id="panel-biblioteca">
+    <div class="bib-header">
+      <span class="bib-titulo">Mi Biblioteca</span>
+      <button id="btn-cerrar-bib">✕</button>
+    </div>
+    <div id="bib-lista"></div>
+  </div>
+
+  <!-- ═══ HEADER ═══ -->
+  <header id="site-header">
+    <div class="header-left">
+      <div id="logotype"><span class="dot">◈</span>ABYS TENEBRAE</div>
+      <button id="btn-inicio-header" title="Volver al inicio">← Inicio</button>
+    </div>
+    <div class="header-right">
+      <!-- Modo lectura Luna/Sol -->
+      <button id="btn-tema" title="Cambiar modo de lectura" aria-label="Modo claro/oscuro">
+        <span id="tema-icon"></span>
+      </button>
+      <!-- Compartir -->
+      <button id="btn-compartir-pagina" title="Compartir Abys Tenebrae">
+        <span class="share-inner">
+          <i class="share-icon"></i>
+          <span class="share-text">Compartir</span>
+        </span>
+      </button>
+      <!-- Búsqueda -->
+      <button id="btn-buscar" title="Buscar historias">⌕</button>
+      <!-- Aleatorio -->
+      <button id="btn-aleatorio">Azar</button>
+    </div>
+  </header>
+
+  <!-- Buscador desplegable -->
+  <div id="buscador-wrap">
+    <input id="buscador-input" type="text"
+      placeholder="Buscar por título, género, pilar…" autocomplete="off">
+  </div>
+
+  <!-- ═══ APP ═══ -->
+  <div id="app">
+
+    <!-- VISTA: HOME -->
+    <div id="vista-home" class="vista">
+      <section id="hero">
+        <p class="hero-eyebrow">Relatos en el umbral · Narrativa de penumbra</p>
+        <h1 class="hero-title"><span class="accent">Abys</span> Tenebrae</h1>
+        <p class="hero-sub">Donde los límites de la realidad se disuelven en el umbral de lo innombrable.</p>
+        <div class="hero-divider"></div>
+        <div class="hero-stats" id="hero-stats"></div>
+        <div id="pilares-grid"></div>
+      </section>
+      <section id="zona-flujo"></section>
+      <section id="zona-pulso"></section>
+      <footer id="site-footer">
+        <div class="footer-logo"><span>◈</span> ABYS TENEBRAE</div>
+        <p class="footer-desc">Un portal de relatos que habitan en los márgenes de lo posible.<br>Literatura de penumbra para quien no teme adentrarse.</p>
+        <button id="btn-compartir-footer">
+          <span class="share-inner">
+            <i class="share-icon"></i>
+            <span class="share-text">Compartir esta página</span>
+          </span>
+        </button>
+        <div class="footer-copy">© Abys Tenebrae · Todos los relatos reservados</div>
+      </footer>
+    </div>
+
+    <!-- VISTA: PILAR -->
+    <div id="vista-pilar" class="vista"></div>
+
+    <!-- VISTA: LECTURA -->
+    <div id="vista-lectura" class="vista">
+      <div id="lectura-contenido"></div>
+    </div>
+
+  </div>
+
+  <!-- Capa interacción lectura -->
+  <div id="capa-interaccion"></div>
+
+  <!-- Modal compartir -->
+  <div id="share-modal">
+    <div id="share-card"></div>
+  </div>
+
+  <script src="engine.js"></script>
+</body>
+</html>
