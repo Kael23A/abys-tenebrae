@@ -818,9 +818,8 @@ body::before {
 /* Compartir header/footer — visible en modo claro */
 [data-theme="light"] #btn-compartir-pagina .share-inner,
 [data-theme="light"] #btn-compartir-footer .share-inner {
-  background: rgba(0,0,0,0.04);
+  background: none;
   color: var(--text-muted);
-  border-left: 1px solid rgba(0,0,0,0.1);
 }
 [data-theme="light"] #btn-compartir-pagina .share-inner::before,
 [data-theme="light"] #btn-compartir-footer .share-inner::before {
@@ -835,8 +834,8 @@ body::before {
   color: var(--pilar-activo);
 }
 [data-theme="light"] .share-icon {
-  background: #3a3020;
-  opacity: 0.7;
+  background: #5a4e3a;
+  opacity: 0.85;
 }
 [data-theme="light"] #btn-compartir-pagina:hover .share-icon,
 [data-theme="light"] #btn-compartir-footer:hover .share-icon {
