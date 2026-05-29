@@ -257,9 +257,6 @@ const AT = (() => {
     if (!vista) return;
 
     vista.innerHTML = `
-      <div class="pilar-meta">
-        <button class="meta-inicio" id="btn-inicio-pilar">Inicio</button>
-      </div>
       <div class="pilar-vista-header anim-bruma">
         <span class="pilar-vista-icono" style="color:${color}">${pilar.icono}</span>
         <div class="pilar-vista-nombre">${pilar.nombre}</div>
@@ -297,10 +294,6 @@ const AT = (() => {
     vista.querySelectorAll('.chip').forEach(c =>
       c.addEventListener('click', () => renderPilar(pilarId, c.dataset.sub||null))
     );
-    $('#btn-inicio-pilar')?.addEventListener('click', () => {
-      history.replaceState(null,'',location.pathname);
-      renderHome();
-    });
     [$('#lista-pilar-rec'),$('#lista-pilar-tend')].forEach(el => el && bindCards(el));
     vista.querySelectorAll('.comentario-card').forEach(el =>
       el.addEventListener('click', () => abrirHistoria(el.dataset.id, el.dataset.frag))
