@@ -716,16 +716,6 @@ body::before {
 }
 
 
-/* ── Pilar meta (mismo estilo que lectura-meta) ── */
-.pilar-meta {
-  font-family: var(--font-mono);
-  font-size: 0.52rem; letter-spacing: 0.2em;
-  color: var(--text-faint);
-  text-transform: uppercase;
-  margin-bottom: 1.5rem;
-  display: flex; align-items: center; gap: 0.8rem;
-}
-
 /* ── Botón Inicio en meta de lectura (arriba lateral) ── */
 .meta-inicio {
   background: none; border: none; cursor: pointer;
@@ -828,33 +818,25 @@ body::before {
 /* Compartir header/footer — visible en modo claro */
 [data-theme="light"] #btn-compartir-pagina .share-inner,
 [data-theme="light"] #btn-compartir-footer .share-inner {
-  /* Mismo estilo que modo oscuro — clip-path flecha visible */
   background: rgba(0,0,0,0.04);
-  color: #5a4e3a;
-  clip-path: polygon(0% 0%, calc(100% - 10px) 0%, 100% 50%, calc(100% - 10px) 100%, 0% 100%);
+  color: var(--text-muted);
+  border-left: 1px solid rgba(0,0,0,0.1);
 }
 [data-theme="light"] #btn-compartir-pagina .share-inner::before,
 [data-theme="light"] #btn-compartir-footer .share-inner::before {
-  border-color: rgba(0,0,0,0.18);
+  border-color: rgba(0,0,0,0.15);
+}
+[data-theme="light"] .share-text {
+  color: var(--text-muted);
 }
 [data-theme="light"] #btn-compartir-pagina:hover .share-inner,
 [data-theme="light"] #btn-compartir-footer:hover .share-inner {
   background: rgba(0,0,0,0.07);
   color: var(--pilar-activo);
 }
-[data-theme="light"] #btn-compartir-pagina:hover .share-inner::before,
-[data-theme="light"] #btn-compartir-footer:hover .share-inner::before {
-  border-color: var(--pilar-activo);
-  width: 9px; height: 9px;
-}
 [data-theme="light"] .share-icon {
-  background: #5a4e3a;
-  opacity: 0.9;
-}
-[data-theme="light"] #btn-compartir-pagina:hover .share-icon,
-[data-theme="light"] #btn-compartir-footer:hover .share-icon {
-  background: var(--pilar-activo);
-  opacity: 1;
+  background: #3a3020;
+  opacity: 0.7;
 }
 [data-theme="light"] #btn-compartir-pagina:hover .share-icon,
 [data-theme="light"] #btn-compartir-footer:hover .share-icon {
