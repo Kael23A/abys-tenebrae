@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EL ÚLTIMO TREN — Misterio</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,300;1,400;1,700&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Oswald:wght@200;400;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --black:#02020a;--deep:#06060f;--dark:#0c0c1a;--navy:#0f0f28;
+  --ink:#151530;--slate:#1e1e3a;--mid:#3a3a5a;
+  --fog:#7878a0;--silver:#a8a8c0;--paper:#e0dcd0;--ivory:#f0ece0;
+  --gold:#c8a840;--amber:#e0b830;--pale-gold:#f0d870;
+  --blue:#2040a0;--blue2:#3060c0;--blue3:#6090e0;
+  --smoke:rgba(168,168,192,0.06);
+  --pl:'Playfair Display',Georgia,serif;
+  --cp:'Courier Prime','Courier New',monospace;
+  --os:'Oswald',sans-serif;
+}
+html{scroll-behavior:smooth;}
+body{background:var(--black);color:var(--paper);font-family:var(--pl);overflow-x:hidden;cursor:none;}
+
+/* CURSOR — LUPA */
+.cur{position:fixed;width:18px;height:18px;border-radius:50%;border:1.5px solid var(--gold);pointer-events:none;z-index:99999;transform:translate(-50%,-50%);}
+.cur::after{content:'';position:absolute;bottom:-7px;right:-5px;width:6px;height:1.5px;background:var(--gold);transform:rotate(45deg);}
+.cur-dot{position:fixed;width:3px;height:3px;border-radius:50%;background:var(--gold);pointer-events:none;z-index:99999;transform:translate(-50%,-50%);}
+
+/* NIEBLA */
+.fog-layer{position:fixed;inset:0;pointer-events:none;z-index:9996;
+  background:radial-gradient(ellipse 100% 25% at 50% 100%,rgba(168,168,192,0.04) 0%,transparent 60%),
+  radial-gradient(ellipse 70% 70% at 50% 50%,transparent 40%,rgba(2,2,10,0.85) 100%);}
+
+/* LOADER */
+#loader{position:fixed;inset:0;background:var(--black);z-index:99990;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.8rem;transition:opacity 1s ease;}
+#loader.hide{opacity:0;pointer-events:none;}
+.ld-icon{font-size:2.5rem;animation:ldSway 2s ease-in-out infinite;}
+@keyframes ldSway{0%,100%{transform:rotate(-5deg);}50%{transform:rotate(5deg);}}
+.ld-title{font-family:var(--pl);font-style:italic;font-size:clamp(1.2rem,3vw,2rem);color:var(--silver);text-align:center;letter-spacing:0.05em;}
+.ld-case{font-family:var(--cp);font-size:0.7rem;letter-spacing:0.4em;color:rgba(200,168,64,0.4);text-align:center;}
+.ld-bar-w{width:180px;height:1px;background:rgba(200,168,64,0.15);}
+.ld-bar{height:100%;width:0;background:var(--gold);box-shadow:0 0 8px var(--gold);}
+.ld-sub{font-family:var(--cp);font-size:0.65rem;letter-spacing:0.3em;color:rgba(168,168,192,0.3);text-align:center;}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:4rem 2rem;}
+.hero-bg{position:absolute;inset:0;background:linear-gradient(180deg,#020210 0%,#06061a 40%,#0a0a20 70%,#02020a 100%);}
+
+/* Estrellas */
+#stars{position:absolute;inset:0;pointer-events:none;}
+.star{position:absolute;border-radius:50%;background:var(--silver);animation:twinkle linear infinite;}
+@keyframes twinkle{0%,100%{opacity:0.1;}50%{opacity:0.8;}}
+
+/* Vía del tren SVG */
+.tracks{position:absolute;bottom:0;left:0;right:0;height:160px;pointer-events:none;opacity:0.12;}
+
+/* Faro de tren que viene */
+.train-light{position:absolute;bottom:80px;left:50%;transform:translateX(-50%);width:6px;height:6px;border-radius:50%;background:var(--ivory);box-shadow:0 0 20px 10px rgba(240,236,224,0.3),0 0 80px 40px rgba(200,180,100,0.1),0 0 200px 100px rgba(200,180,100,0.04);animation:lightPulse 3s ease-in-out infinite;}
+@keyframes lightPulse{0%,100%{opacity:0.8;box-shadow:0 0 20px 10px rgba(240,236,224,0.3),0 0 80px 40px rgba(200,180,100,0.1);}50%{opacity:1;box-shadow:0 0 30px 15px rgba(240,236,224,0.4),0 0 120px 60px rgba(200,180,100,0.15);}}
+
+/* Humo animado */
+.smoke-p{position:absolute;border-radius:50%;background:rgba(168,168,192,0.06);animation:smokeRise ease-out infinite;pointer-events:none;}
+@keyframes smokeRise{0%{transform:translate(0,0) scale(0.5);opacity:0.4;}100%{transform:translate(var(--sx),var(--sy)) scale(2.5);opacity:0;}}
+
+.hero-content{position:relative;z-index:2;text-align:center;}
+.hero-case{font-family:var(--cp);font-size:0.65rem;letter-spacing:0.5em;color:var(--gold);margin-bottom:1.8rem;opacity:0;animation:fadeUp 0.8s 0.5s ease forwards;display:flex;align-items:center;justify-content:center;gap:1rem;}
+.case-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 6px var(--gold);animation:caseBlink 2s infinite;}
+@keyframes caseBlink{0%,100%{opacity:1;}50%{opacity:0.2;}}
+.hero-title{font-family:var(--pl);font-size:clamp(3rem,11vw,9rem);font-style:italic;font-weight:700;line-height:0.92;color:var(--ivory);opacity:0;animation:titleIn 1.2s 0.9s ease forwards;text-shadow:0 0 100px rgba(200,168,64,0.1),0 4px 30px rgba(0,0,0,0.9);}
+@keyframes titleIn{from{opacity:0;letter-spacing:0.3em;filter:blur(4px);}to{opacity:1;letter-spacing:normal;filter:blur(0);}}
+.hero-title .gold{color:var(--gold);}
+.hero-num{font-family:var(--os);font-weight:200;font-size:clamp(0.65rem,1.5vw,0.9rem);letter-spacing:0.6em;text-transform:uppercase;color:var(--fog);margin-top:1rem;opacity:0;animation:fadeUp 0.8s 1.6s ease forwards;}
+.hero-rule{width:0;height:1px;background:linear-gradient(to right,transparent,var(--gold),transparent);margin:2rem auto;animation:ruleGrow 1.5s 2s ease forwards;}
+@keyframes ruleGrow{to{width:220px;}}
+.hero-deck{max-width:48ch;margin:0 auto;font-size:1.05rem;font-style:italic;line-height:2;color:rgba(224,220,208,0.6);opacity:0;animation:fadeUp 1s 2.3s ease forwards;}
+.hero-stamp{margin-top:2.5rem;display:inline-block;border:1px solid rgba(200,168,64,0.25);padding:0.6rem 1.5rem;font-family:var(--cp);font-size:0.65rem;letter-spacing:0.35em;color:rgba(200,168,64,0.5);opacity:0;animation:fadeIn 1s 2.8s ease forwards;}
+.scroll-cue{position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);z-index:2;display:flex;flex-direction:column;align-items:center;gap:0.5rem;opacity:0;animation:fadeIn 1s 3.5s ease forwards;}
+.scroll-cue span{font-family:var(--cp);font-size:0.6rem;letter-spacing:0.45em;color:rgba(120,120,160,0.4);}
+.s-drop{width:1px;height:50px;background:linear-gradient(to bottom,var(--gold),transparent);animation:sDrop 2s infinite;}
+@keyframes sDrop{0%,100%{opacity:1;}50%{opacity:0.1;}}
+
+/* LAYOUT */
+.container{max-width:840px;margin:0 auto;padding:0 2rem;}
+
+/* CAPÍTULOS */
+.chapter{padding:7rem 0;position:relative;}
+.chapter::before{content:'';position:absolute;left:-1.5rem;top:5rem;bottom:5rem;width:1px;background:linear-gradient(to bottom,transparent,rgba(200,168,64,0.12),transparent);}
+.ch-tag{font-family:var(--cp);font-size:0.65rem;letter-spacing:0.5em;color:var(--gold);display:flex;align-items:center;gap:1rem;margin-bottom:1.2rem;opacity:0;transform:translateX(-16px);transition:opacity 0.9s ease,transform 0.9s ease;}
+.ch-tag.visible{opacity:1;transform:translateX(0);}
+.ch-tag::before{content:'//';color:rgba(200,168,64,0.4);}
+.ch-title{font-family:var(--pl);font-size:clamp(2.5rem,7vw,5.5rem);font-style:italic;font-weight:700;line-height:1;color:var(--ivory);margin-bottom:2.8rem;opacity:0;transform:translateY(22px);transition:opacity 1.1s 0.1s ease,transform 1.1s 0.1s ease;}
+.ch-title.visible{opacity:1;transform:translateY(0);}
+.ch-title .gold{color:var(--gold);}
+.ch-title .dim{color:var(--fog);font-style:normal;font-weight:200;}
+.chapter p{font-size:1.08rem;line-height:2.05;color:rgba(224,220,208,0.75);font-style:italic;margin-bottom:1.8rem;opacity:0;transform:translateY(14px);transition:opacity 1s 0.2s ease,transform 1s 0.2s ease;}
+.chapter p.visible{opacity:1;transform:translateY(0);}
+.chapter p em{font-style:normal;color:var(--ivory);}
+.chapter p .gold{color:var(--gold);font-style:normal;}
+.chapter p .hl{color:var(--ivory);font-style:normal;font-weight:700;}
+.chapter p .dim{color:var(--fog);font-style:normal;}
+.chapter p .blue{color:var(--blue3);font-style:normal;}
+
+/* TELEGRAMA */
+.telegram{margin:3.5rem 0;padding:2.5rem 3rem;background:rgba(200,168,64,0.04);border:1px solid rgba(200,168,64,0.15);position:relative;opacity:0;transform:translateY(16px);transition:opacity 1.1s ease,transform 1.1s ease;}
+.telegram.visible{opacity:1;transform:translateY(0);}
+.telegram::before{content:attr(data-label);position:absolute;top:-0.65rem;left:1.5rem;font-family:var(--cp);font-size:0.6rem;letter-spacing:0.4em;color:var(--gold);background:var(--black);padding:0 0.5rem;}
+.telegram-text{font-family:var(--cp);font-size:clamp(0.9rem,2.2vw,1.2rem);line-height:1.9;color:var(--paper);letter-spacing:0.02em;}
+.telegram-text .hl{color:var(--gold);}
+.telegram-from{display:block;margin-top:1.2rem;font-family:var(--cp);font-size:0.65rem;letter-spacing:0.35em;color:var(--fog);border-top:1px solid rgba(200,168,64,0.1);padding-top:0.8rem;}
+
+/* PISTAS GRID */
+.clues{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin:2.5rem 0;}
+@media(max-width:580px){.clues{grid-template-columns:1fr 1fr;}}
+.clue{border:1px solid rgba(200,168,64,0.1);background:rgba(12,12,26,0.8);padding:1.8rem 1.5rem;position:relative;opacity:0;transform:translateY(20px);transition:opacity 0.9s ease,transform 0.9s ease;}
+.clue.visible{opacity:1;transform:translateY(0);}
+.clue::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform 0.5s ease;}
+.clue:hover::after{transform:scaleX(1);}
+.clue-num{font-family:var(--cp);font-size:0.6rem;letter-spacing:0.4em;color:rgba(200,168,64,0.3);margin-bottom:0.5rem;}
+.clue-title{font-family:var(--os);font-weight:700;font-size:0.85rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--silver);margin-bottom:0.8rem;}
+.clue-desc{font-size:0.88rem;font-style:italic;line-height:1.8;color:rgba(200,192,168,0.5);}
+.clue-state{font-family:var(--cp);font-size:0.62rem;letter-spacing:0.3em;margin-top:0.8rem;}
+.verified{color:var(--gold);}
+.unverified{color:rgba(100,100,140,0.5);}
+.contradicts{color:#c05030;}
+
+/* BANDA */
+.mid-band{background:var(--deep);border-top:1px solid rgba(200,168,64,0.06);border-bottom:1px solid rgba(200,168,64,0.06);padding:6rem 2rem;position:relative;overflow:hidden;}
+.mid-band::before{content:'EL ÚLTIMO TREN';position:absolute;top:50%;left:-2%;transform:translateY(-50%);font-family:var(--pl);font-style:italic;font-size:9rem;font-weight:700;color:rgba(200,168,64,0.02);white-space:nowrap;pointer-events:none;user-select:none;}
+.band-inner{max-width:840px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center;position:relative;z-index:2;}
+@media(max-width:600px){.band-inner{grid-template-columns:1fr;gap:2.5rem;}}
+.band-big{font-family:var(--pl);font-size:clamp(2rem,5vw,3.8rem);font-style:italic;font-weight:700;line-height:1.1;color:var(--ivory);opacity:0;transform:translateY(18px);transition:opacity 1s ease,transform 1s ease;}
+.band-big.visible{opacity:1;transform:translateY(0);}
+.band-big .gold{color:var(--gold);}
+.band-body{font-size:1rem;font-style:italic;line-height:2;color:rgba(200,192,168,0.5);border-left:1px solid rgba(200,168,64,0.12);padding-left:2rem;opacity:0;transition:opacity 1s 0.3s ease;}
+.band-body.visible{opacity:1;}
+
+/* SOSPECHOSOS */
+.suspects{display:flex;flex-direction:column;gap:0;margin:2rem 0;}
+.suspect{padding:2rem 0;border-bottom:1px solid rgba(200,168,64,0.07);display:grid;grid-template-columns:3.5rem 1fr;gap:1.5rem;align-items:start;opacity:0;transform:translateX(-16px);transition:opacity 0.9s ease,transform 0.9s ease;}
+.suspect.visible{opacity:1;transform:translateX(0);}
+.suspect-init{font-family:var(--pl);font-size:2.5rem;font-style:italic;font-weight:700;color:rgba(200,168,64,0.2);line-height:1;}
+.suspect-name{font-family:var(--os);font-weight:700;font-size:0.9rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--silver);margin-bottom:0.3rem;}
+.suspect-role{font-family:var(--cp);font-size:0.62rem;letter-spacing:0.3em;color:var(--fog);margin-bottom:0.5rem;}
+.suspect-desc{font-size:0.92rem;font-style:italic;line-height:1.8;color:rgba(200,192,168,0.55);}
+.suspect-verdict{font-family:var(--cp);font-size:0.62rem;letter-spacing:0.3em;margin-top:0.4rem;}
+.v-clear{color:rgba(100,180,100,0.6);}
+.v-suspect{color:var(--gold);}
+.v-unknown{color:rgba(100,100,140,0.4);}
+
+/* STATS */
+.stats-sec{background:var(--navy);padding:4.5rem 2rem;overflow:hidden;position:relative;}
+.stats-sec::before{content:'// DATOS DEL CASO';position:absolute;top:1.5rem;left:2rem;font-family:var(--cp);font-size:0.6rem;letter-spacing:0.3em;color:rgba(200,168,64,0.15);}
+.stats-inner{max-width:840px;margin:0 auto;display:flex;justify-content:space-around;flex-wrap:wrap;gap:2rem;}
+.st{text-align:center;opacity:0;transform:translateY(18px);transition:opacity 0.8s ease,transform 0.8s ease;}
+.st.visible{opacity:1;transform:translateY(0);}
+.st-num{font-family:var(--pl);font-size:4rem;font-style:italic;font-weight:700;color:var(--gold);line-height:1;text-shadow:0 0 20px rgba(200,168,64,0.3);}
+.st-label{font-family:var(--cp);font-size:0.6rem;letter-spacing:0.3em;color:var(--fog);margin-top:0.4rem;}
+
+/* FINALE */
+.finale{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:6rem 2rem;position:relative;overflow:hidden;background:var(--black);text-align:center;}
+.finale::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 50% at 50% 60%,rgba(20,20,50,0.4),transparent);}
+/* Vía en perspectiva finale */
+.fin-tracks{position:absolute;bottom:0;left:0;right:0;pointer-events:none;opacity:0.06;}
+.finale-content{position:relative;z-index:2;}
+.fin-tag{font-family:var(--cp);font-size:0.62rem;letter-spacing:0.5em;color:rgba(200,168,64,0.35);display:block;margin-bottom:2.5rem;opacity:0;transition:opacity 1s ease;}
+.fin-tag.visible{opacity:1;}
+.fin-h{font-family:var(--pl);font-size:clamp(2.8rem,9vw,7.5rem);font-style:italic;font-weight:700;line-height:0.95;color:var(--ivory);max-width:18ch;margin:0 auto;text-shadow:0 0 80px rgba(200,168,64,0.08);opacity:0;transform:translateY(40px);transition:opacity 1.4s 0.2s ease,transform 1.4s 0.2s ease;}
+.fin-h.visible{opacity:1;transform:translateY(0);}
+.fin-h .gold{color:var(--gold);}
+.fin-rule{width:0;height:1px;background:linear-gradient(to right,transparent,var(--gold),transparent);margin:3rem auto;transition:width 2s 0.7s ease;}
+.fin-rule.visible{width:220px;}
+.fin-p{font-size:1.05rem;font-style:italic;line-height:2.1;color:rgba(200,192,168,0.55);max-width:54ch;margin:0 auto;opacity:0;transition:opacity 1.3s 1s ease;}
+.fin-p.visible{opacity:1;}
+#finMsg{margin-top:3.5rem;font-family:var(--cp);font-size:0.85rem;letter-spacing:0.06em;color:var(--gold);min-height:6em;line-height:2.2;opacity:0;transition:opacity 0.5s 1.8s ease;}
+#finMsg.visible{opacity:1;}
+
+footer{border-top:1px solid rgba(200,168,64,0.07);padding:2.5rem 2rem;text-align:center;background:var(--black);}
+footer p{font-family:var(--cp);font-size:0.58rem;letter-spacing:0.35em;color:rgba(120,120,160,0.25);}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+</style>
+</head>
+<body>
+
+<div class="cur" id="cur"></div>
+<div class="cur-dot" id="curDot"></div>
+<div class="fog-layer"></div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="ld-icon">🔍</div>
+  <div class="ld-title">El Último Tren</div>
+  <div class="ld-case">CASO N° 1922-VII &nbsp;·&nbsp; EXPEDIENTE ABIERTO</div>
+  <div class="ld-bar-w"><div class="ld-bar" id="ldBar"></div></div>
+  <div class="ld-sub" id="ldSub">ACCEDIENDO A LOS ARCHIVOS...</div>
+</div>
+
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div id="stars"></div>
+
+  <!-- Vías en perspectiva -->
+  <svg class="tracks" viewBox="0 0 1200 160" xmlns="http://www.w3.org/2000/svg" fill="none">
+    <line x1="600" y1="0" x2="100" y2="160" stroke="var(--silver)" stroke-width="2"/>
+    <line x1="600" y1="0" x2="1100" y2="160" stroke="var(--silver)" stroke-width="2"/>
+    <line x1="600" y1="10" x2="200" y2="160" stroke="var(--silver)" stroke-width="1" opacity="0.4"/>
+    <line x1="600" y1="10" x2="1000" y2="160" stroke="var(--silver)" stroke-width="1" opacity="0.4"/>
+    <!-- traviesas -->
+    <line x1="570" y1="10" x2="630" y2="10" stroke="var(--silver)" stroke-width="2"/>
+    <line x1="540" y1="30" x2="660" y2="30" stroke="var(--silver)" stroke-width="2"/>
+    <line x1="500" y1="55" x2="700" y2="55" stroke="var(--silver)" stroke-width="2"/>
+    <line x1="450" y1="85" x2="750" y2="85" stroke="var(--silver)" stroke-width="2"/>
+    <line x1="380" y1="120" x2="820" y2="120" stroke="var(--silver)" stroke-width="2"/>
+    <line x1="290" y1="160" x2="910" y2="160" stroke="var(--silver)" stroke-width="2"/>
+  </svg>
+
+  <div class="train-light"></div>
+
+  <div class="hero-content">
+    <div class="hero-case"><div class="case-dot"></div>CASO N° 1922-VII &nbsp;·&nbsp; INSPECTOR ROBLES &nbsp;·&nbsp; SIN RESOLVER</div>
+    <h1 class="hero-title">El Último<br><span class="gold">Tren</span></h1>
+    <p class="hero-num">Expreso de medianoche &nbsp;·&nbsp; 11 de noviembre de 1922 &nbsp;·&nbsp; Vagón 7</p>
+    <div class="hero-rule"></div>
+    <p class="hero-deck">Dieciocho pasajeros abordaron el expreso de las 23:47 en la Estación Central. A las 2:14 de la madrugada, el tren llegó a su destino. Solo había dieciséis.</p>
+    <div class="hero-stamp">EXPEDIENTE CLASIFICADO &nbsp;·&nbsp; ACCESO RESTRINGIDO</div>
+  </div>
+  <div class="scroll-cue"><span>ABRIR EXPEDIENTE</span><div class="s-drop"></div></div>
+</section>
+
+
+<!-- CAPÍTULO I -->
+<div class="container">
+<section class="chapter">
+  <span class="ch-tag">ACTO I &nbsp;·&nbsp; LA NOCHE DEL EXPRESO</span>
+  <h2 class="ch-title">Dos pasajeros.<br>Una sola <span class="gold">pregunta.</span></h2>
+
+  <p>El Inspector Aurelio Robles recibió el telegrama a las 3:08 de la madrugada del 12 de noviembre. Cuatro líneas. La caligrafía nerviosa del jefe de estación de Vallecín temblaba visible en cada trazo: dos pasajeros habían desaparecido del expreso nocturno. No en una parada. No entre andenes. <em>Dentro del tren. En movimiento. Sin dejar rastro visible.</em></p>
+
+  <p>Robles llegó a Vallecín con el primer tren de la mañana, el abrigo todavía oliendo a la lluvia que no había parado en toda la noche. El jefe de estación lo esperaba en el andén con la cara de alguien que ha visto algo que preferiría no haber visto y no sabe cómo empezar a contarlo. <span class="hl">Robles lo conocía bien. Era la misma cara que ponía la gente cuando la realidad no encajaba con lo que la realidad debería ser.</span></p>
+
+  <p>Los desaparecidos eran dos: <span class="gold">Doña Amparo Villaverde, 67 años, viuda, viajaba al funeral de su hermana.</span> Y <span class="gold">el señor Clement Faber, 34 años, comerciante alemán, primera vez en España, español básico.</span> No se conocían. No habían hablado entre sí según los otros pasajeros. No tenían nada en común excepto haber subido al vagón 7 del expreso de las 23:47 y no haber bajado en ningún lugar conocido.</p>
+
+  <div class="telegram" data-label="TELEGRAMA ORIGINAL — 12 NOV 1922 — 03:08">
+    <p class="telegram-text">INSPECTOR ROBLES STOP DOS PASAJEROS DESAPARECIDOS EXPRESO NOCTURNO STOP VAGÓN SIETE STOP SIN SEÑALES VIOLENCIA STOP SIN PARADAS NO PROGRAMADAS STOP <span class="hl">VENTANILLAS CERRADAS POR DENTRO STOP</span> PUERTAS EXTERIORES SIN SEÑALES APERTURA STOP AGUARDO SU LLEGADA STOP URGENTE STOP</p>
+    <span class="telegram-from">DE: ESTACIÓN VALLECÍN &nbsp;·&nbsp; PARA: INSPECTOR ROBLES, BRIGADA CRIMINAL &nbsp;·&nbsp; 03:08 AM</span>
+  </div>
+
+  <p>Lo que el telegrama no podía transmitir — lo que Robles descubrió cuando subió al vagón 7 con la luz gris del amanecer entrando oblicua por las ventanillas — era la parte que convertía el caso de una desaparición a un imposible: <span class="hl">en el asiento 7-D, el de Doña Amparo, había un vaso de té todavía caliente.</span> En el 7-F, el de Faber, un libro abierto por la mitad, con las gafas dobladas encima. <span class="gold">Como si los dos hubieran desaparecido en mitad de un momento.</span> Sin preparación. Sin intención. Sin despedida.</p>
+</section>
+</div>
+
+
+<!-- BANDA -->
+<div class="mid-band">
+  <div class="band-inner">
+    <div class="band-big">El imposible<br>no existe.<br>Solo existe<br>lo que <span class="gold">aún no entiendes.</span></div>
+    <div class="band-body">El misterio clásico no funciona con lo sobrenatural. Funciona con lo que parece sobrenatural hasta que alguien mira con suficiente cuidado en el lugar correcto. La diferencia entre un milagro y un truco es siempre la misma: la perspectiva del observador. Robles lo sabía. Por eso el primer día no buscó respuestas. Buscó las preguntas correctas.</div>
+  </div>
+</div>
+
+
+<!-- CAPÍTULO II -->
+<div class="container">
+<section class="chapter">
+  <span class="ch-tag">ACTO II &nbsp;·&nbsp; LOS TESTIGOS</span>
+  <h2 class="ch-title">Dieciséis<br>versiones.<br><span class="dim">Ninguna</span> <span class="gold">igual.</span></h2>
+
+  <p>Robles interrogó a los dieciséis pasajeros restantes a lo largo del 12 de noviembre. Los hizo esperar en la sala de espera de Vallecín uno por uno, sin que pudieran hablar entre ellos. <em>La memoria es contaminable. Una vez que alguien cuenta lo que vio, todos empiezan a ver lo mismo.</em> Robles quería las versiones sin filtro, antes de que el relato colectivo aplastara los detalles que no encajaban.</p>
+
+  <p>Los dieciséis coincidían en lo esencial: nadie había visto a los desaparecidos después de la 1:30. Nadie había oído nada inusual. Nadie los había visto levantarse, moverse hacia la puerta, acercarse a ningún otro pasajero. Doña Amparo y Faber habían estado en sus asientos hasta que, en algún momento entre la 1:30 y la llegada a Vallecín a las 2:14, <span class="hl">simplemente dejaron de estar.</span></p>
+
+  <!-- Pistas -->
+  <div class="clues">
+    <div class="clue">
+      <div class="clue-num">PISTA 001</div>
+      <div class="clue-title">El Té Caliente</div>
+      <div class="clue-desc">Temperatura estimada: 45 minutos antes de ser encontrado. Imposible si la desaparición ocurrió a la 1:30. Alguien lo preparó después.</div>
+      <div class="clue-state verified">◆ VERIFICADA</div>
+    </div>
+    <div class="clue" style="transition-delay:0.1s">
+      <div class="clue-num">PISTA 002</div>
+      <div class="clue-title">El Libro de Faber</div>
+      <div class="clue-desc">Páginas 247-248. Un libro de contabilidad, no de lectura. Las páginas marcadas corresponden a una transacción de noviembre de 1921.</div>
+      <div class="clue-state verified">◆ VERIFICADA</div>
+    </div>
+    <div class="clue" style="transition-delay:0.2s">
+      <div class="clue-num">PISTA 003</div>
+      <div class="clue-title">La Ventanilla 7-E</div>
+      <div class="clue-desc">El asiento vacío entre los dos desaparecidos. Nadie viajaba en él. La ventanilla: cerrada desde dentro con el pestillo girado al revés.</div>
+      <div class="clue-state contradicts">✕ CONTRADICE EL INFORME</div>
+    </div>
+    <div class="clue" style="transition-delay:0.3s">
+      <div class="clue-num">PISTA 004</div>
+      <div class="clue-title">El Revisor Ausente</div>
+      <div class="clue-desc">El revisor del vagón 7 revisó los billetes al inicio. No volvió a pasar hasta Vallecín. Un tramo de 2 horas y 27 minutos sin supervisión.</div>
+      <div class="clue-state verified">◆ VERIFICADA</div>
+    </div>
+    <div class="clue" style="transition-delay:0.4s">
+      <div class="clue-num">PISTA 005</div>
+      <div class="clue-title">La Maleta de Amparo</div>
+      <div class="clue-desc">Seguía en el portaequipajes. Abierta. Con ropa ordenada encima de la cama como si alguien la hubiera registrado y vuelto a cerrar con cuidado.</div>
+      <div class="clue-state unverified">◌ SIN CONFIRMAR</div>
+    </div>
+    <div class="clue" style="transition-delay:0.5s">
+      <div class="clue-num">PISTA 006</div>
+      <div class="clue-title">El Nombre en el Vapor</div>
+      <div class="clue-desc">En la ventanilla empañada del asiento 7-E, alguien había escrito con el dedo una sola palabra: FABER. En mayúsculas. Desde dentro.</div>
+      <div class="clue-state contradicts">✕ INEXPLICABLE</div>
+    </div>
+  </div>
+
+  <p>Robles pasó la tarde del 12 con el libro de contabilidad de Faber. Las páginas marcadas mostraban una transacción de cuarenta mil francos entre una empresa fantasma registrada en Basilea y una dirección de Madrid que Robles reconoció de inmediato: <em>era la dirección de la empresa de importación de uno de los otros dieciséis pasajeros.</em></p>
+
+  <p>El señor Evaristo Montalbán, 52 años, empresario, viajaba en el vagón 7 asiento 7-B. Cuatro asientos delante de Faber. <span class="gold">Y según su propio testimonio, nunca había visto al alemán en su vida.</span></p>
+</section>
+</div>
+
+
+<!-- SOSPECHOSOS -->
+<div class="container">
+<section class="chapter">
+  <span class="ch-tag">ACTO III &nbsp;·&nbsp; LOS SOSPECHOSOS</span>
+  <h2 class="ch-title">Dieciséis<br>inocentes.<br><span class="gold">Uno no.</span></h2>
+
+  <p>Robles redujo la lista a cuatro. No porque los demás fueran imposibles — en un caso imposible todo el mundo es posible — sino porque cuatro tenían algo que los otros doce no tenían: <em>una razón.</em></p>
+
+  <div class="suspects">
+    <div class="suspect">
+      <div class="suspect-init">M.</div>
+      <div>
+        <div class="suspect-name">Evaristo Montalbán</div>
+        <div class="suspect-role">EMPRESARIO &nbsp;·&nbsp; ASIENTO 7-B</div>
+        <div class="suspect-desc">Su empresa aparece en el libro de Faber. Negó conocerlo. Pero sus manos temblaban cuando Robles le mostró la página marcada. Y salió al pasillo en dirección al baño a las 1:22 de la madrugada según el testimonio de la señorita del 7-A. El baño está junto al 7-D y 7-F.</div>
+        <div class="suspect-verdict v-suspect">◆ SOSPECHOSO PRINCIPAL</div>
+      </div>
+    </div>
+    <div class="suspect" style="transition-delay:0.1s">
+      <div class="suspect-init">L.</div>
+      <div>
+        <div class="suspect-name">Padre Llanos</div>
+        <div class="suspect-role">SACERDOTE &nbsp;·&nbsp; ASIENTO 7-H</div>
+        <div class="suspect-desc">Dijo no haber dormido en todo el trayecto. Pero el pasajero de 7-G afirma haberlo visto dormido antes de la 1:00. Y en su maletín, entre libros de misa, había una llave inglesa pequeña. No supo explicar para qué.</div>
+        <div class="suspect-verdict v-suspect">◆ SOSPECHOSO SECUNDARIO</div>
+      </div>
+    </div>
+    <div class="suspect" style="transition-delay:0.2s">
+      <div class="suspect-init">V.</div>
+      <div>
+        <div class="suspect-name">Señorita Valls</div>
+        <div class="suspect-role">ACTRIZ &nbsp;·&nbsp; ASIENTO 7-A</div>
+        <div class="suspect-desc">Conocía a Faber. Lo negó inicialmente pero al tercer interrogatorio admitió haber coincidido con él en París dos años antes. Dijo que fue "una sola velada sin importancia". Sus manos no temblaban. Sus ojos tampoco. Eso, pensó Robles, era en sí mismo sospechoso.</div>
+        <div class="suspect-verdict v-unknown">◌ RELACIÓN CONFIRMADA</div>
+      </div>
+    </div>
+    <div class="suspect" style="transition-delay:0.3s">
+      <div class="suspect-init">R.</div>
+      <div>
+        <div class="suspect-name">El Revisor</div>
+        <div class="suspect-role">PERSONAL DEL TREN &nbsp;·&nbsp; SIN ASIENTO</div>
+        <div class="suspect-desc">Dos horas y veintisiete minutos sin pasar por el vagón 7. Su explicación: "atendí una emergencia en el vagón 3". Nadie del vagón 3 recuerda ninguna emergencia. Y el nombre en la ventanilla empañada — FABER — fue escrito desde dentro del vagón, por alguien que conocía ese apellido.</div>
+        <div class="suspect-verdict v-suspect">◆ COARTADA SIN VERIFICAR</div>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+
+<!-- STATS -->
+<div class="stats-sec">
+  <div class="stats-inner">
+    <div class="st"><div class="st-num">2</div><div class="st-label">Desaparecidos</div></div>
+    <div class="st" style="transition-delay:0.15s"><div class="st-num">167'</div><div class="st-label">Minutos en movimiento</div></div>
+    <div class="st" style="transition-delay:0.3s"><div class="st-num">4</div><div class="st-label">Sospechosos</div></div>
+    <div class="st" style="transition-delay:0.45s"><div class="st-num">0</div><div class="st-label">Respuestas oficiales</div></div>
+  </div>
+</div>
+
+
+<!-- CAPÍTULO IV -->
+<div class="container">
+<section class="chapter">
+  <span class="ch-tag">ACTO IV &nbsp;·&nbsp; LA SOLUCIÓN</span>
+  <h2 class="ch-title">Lo que Robles<br>encontró<br>el día <span class="gold">tres.</span></h2>
+
+  <p>El tercer día, Robles subió de nuevo al vagón 7. Solo. A medianoche. Quería verlo a la misma hora en que ocurrió todo. Se sentó en el 7-E, el asiento vacío entre los dos desaparecidos, y durante dos horas no hizo nada excepto mirar.</p>
+
+  <p>A la 1:17 entendió lo de la ventanilla. El pestillo girado al revés no era un error ni una señal. Era el mecanismo de cierre de un doble fondo que él no había visto porque nadie le había dicho que buscara un doble fondo. <em>Entre el asiento 7-E y la pared exterior del vagón había un espacio. No grande. Suficiente.</em> El tipo de espacio que los trenes de la época usaban para el contrabando de documentos.</p>
+
+  <div class="telegram" data-label="NOTA DEL INSPECTOR ROBLES — DÍA 3 — 01:34 AM">
+    <p class="telegram-text">Los dos desaparecidos no fueron sacados del tren. <span class="hl">Entraron voluntariamente al espacio oculto bajo el asiento 7-E.</span> El té lo preparó alguien después para simular una desaparición reciente. El libro abierto, las gafas encima: escena preparada. Doña Amparo y Faber no desaparecieron. <span class="hl">Fingieron desaparecer.</span> La pregunta ya no es dónde están. Es por qué necesitaban que el mundo creyera que ya no existían.</p>
+    <span class="telegram-from">INSPECTOR ROBLES &nbsp;·&nbsp; NOTA PERSONAL &nbsp;·&nbsp; VAGÓN 7 &nbsp;·&nbsp; 01:34 AM &nbsp;·&nbsp; 14 NOV 1922</span>
+  </div>
+
+  <p>Robles tardó dos semanas más en encontrar la respuesta completa. El libro de contabilidad de Faber era la clave: la transacción de cuarenta mil francos era en realidad el registro cifrado de un pago a Montalbán por información que este le había vendido sobre el paradero de una persona. <em>Una persona que llevaba años escondida.</em> Una persona que viajaba en el expreso de medianoche bajo el nombre de Doña Amparo Villaverde.</p>
+
+  <p>Su nombre real era otro. Su historia, más larga y más oscura que todo el expediente. Lo que Robles archivó bajo el caso 1922-VII y marcó como <span class="gold">"sin resolver"</span> — porque algunas soluciones son más peligrosas que los misterios — fue lo siguiente: dos personas habían encontrado la única salida posible en un tren en marcha. <span class="hl">Y Robles, que había dedicado su vida a encontrar a los que desaparecían, decidió por primera vez no contarlo.</span></p>
+
+  <p><em>Algunos desaparecidos merecen permanecer desaparecidos.</em></p>
+</section>
+</div>
+
+
+<!-- FINALE -->
+<section class="finale">
+  <svg class="fin-tracks" viewBox="0 0 1200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <line x1="600" y1="0" x2="0" y2="200" stroke="var(--silver)" stroke-width="2"/>
+    <line x1="600" y1="0" x2="1200" y2="200" stroke="var(--silver)" stroke-width="2"/>
+    <line x1="570" y1="5" x2="630" y2="5" stroke="var(--silver)" stroke-width="2"/>
+    <line x1="530" y1="30" x2="670" y2="30" stroke="var(--silver)" stroke-width="2"/>
+    <line x1="470" y1="65" x2="730" y2="65" stroke="var(--silver)" stroke-width="2"/>
+    <line x1="390" y1="110" x2="810" y2="110" stroke="var(--silver)" stroke-width="2"/>
+    <line x1="280" y1="160" x2="920" y2="160" stroke="var(--silver)" stroke-width="2"/>
+    <line x1="120" y1="200" x2="1080" y2="200" stroke="var(--silver)" stroke-width="2"/>
+  </svg>
+
+  <div class="finale-content">
+    <span class="fin-tag">// CASO 1922-VII &nbsp;·&nbsp; ESTADO: SIN RESOLVER &nbsp;·&nbsp; POR DECISIÓN DEL INSPECTOR</span>
+    <h2 class="fin-h">No todos los<br>misterios<br>merecen<br><span class="gold">solución.</span></h2>
+    <div class="fin-rule"></div>
+    <p class="fin-p">Robles se jubiló en 1938. En su escritorio encontraron dos cosas: una carta sin abrir con matasellos de Buenos Aires, de 1923. Y una nota manuscrita que decía: "El caso 1922-VII está resuelto. El expediente permanece abierto. Hay personas que desaparecen porque el mundo que construimos para ellas no era el que merecían. A esas personas, les deseo suerte."</p>
+    <p id="finMsg"></p>
+  </div>
+</section>
+
+<footer>
+  <p>EL ÚLTIMO TREN &nbsp;·&nbsp; Caso N° 1922-VII &nbsp;·&nbsp; Inspector Robles &nbsp;·&nbsp; Expediente: abierto</p>
+</footer>
+
+<script>
+// ESTRELLAS
+const starsEl=document.getElementById('stars');
+for(let i=0;i<100;i++){
+  const s=document.createElement('div');s.className='star';
+  const sz=Math.random()*1.8+0.4;
+  s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*70}%;left:${Math.random()*100}%;animation-duration:${3+Math.random()*6}s;animation-delay:${Math.random()*6}s;`;
+  starsEl.appendChild(s);
+}
+
+// HUMO
+for(let i=0;i<8;i++){
+  const sm=document.createElement('div');sm.className='smoke-p';
+  const sz=20+Math.random()*30;
+  const sx=(Math.random()-0.5)*80;
+  const sy=-(60+Math.random()*120);
+  sm.style.cssText=`width:${sz}px;height:${sz}px;bottom:80px;left:calc(50% + ${(Math.random()-0.5)*40}px);--sx:${sx}px;--sy:${sy}px;animation-duration:${3+Math.random()*4}s;animation-delay:${Math.random()*4}s;`;
+  document.querySelector('.hero').appendChild(sm);
+}
+
+// LOADER
+const ldBar=document.getElementById('ldBar');
+const ldSub=document.getElementById('ldSub');
+const loader=document.getElementById('loader');
+const msgs=['VERIFICANDO TESTIMONIOS...','ANALIZANDO PISTAS...','CONSULTANDO ARCHIVOS FERROVIARIOS...','ACCESO CONCEDIDO. BIENVENIDO, INSPECTOR.'];
+let prog=0,mi=0;
+const li=setInterval(()=>{
+  prog+=Math.random()*2.5+1;
+  ldBar.style.width=Math.min(prog,100)+'%';
+  if(prog>25&&mi===0){ldSub.textContent=msgs[1];mi++;}
+  if(prog>55&&mi===1){ldSub.textContent=msgs[2];mi++;}
+  if(prog>80&&mi===2){ldSub.textContent=msgs[3];mi++;}
+  if(prog>=100){
+    clearInterval(li);
+    setTimeout(()=>{loader.classList.add('hide');setTimeout(()=>{loader.style.display='none';},1200);},700);
+  }
+},55);
+
+// CURSOR LUPA
+const curEl=document.getElementById('cur');
+const curDot=document.getElementById('curDot');
+let cx=window.innerWidth/2,cy=window.innerHeight/2,mx=cx,my=cy;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;curDot.style.left=mx+'px';curDot.style.top=my+'px';});
+(function animCur(){
+  cx+=(mx-cx)*0.15;cy+=(my-cy)*0.15;
+  curEl.style.left=cx+'px';curEl.style.top=cy+'px';
+  requestAnimationFrame(animCur);
+})();
+
+// IO
+const io=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('visible');});},{threshold:0.1,rootMargin:'0px 0px -50px 0px'});
+document.querySelectorAll('.ch-tag,.ch-title,.chapter p,.telegram,.clue,.suspect,.band-big,.band-body,.st,.fin-tag,.fin-h,.fin-rule,.fin-p,#finMsg').forEach(el=>io.observe(el));
+
+// TYPEWRITER
+const finMsg=document.getElementById('finMsg');
+const finalText=`// La carta de Buenos Aires nunca fue abierta.\n// Robles la guardó toda su vida.\n// En el sobre, con letra que reconoció,\n// solo había dos palabras:\n\n"GRACIAS, INSPECTOR."\n\n// El caso 1922-VII sigue oficialmente abierto.\n// Por decisión de quien podría haberlo cerrado.`;
+let typed=false;
+new IntersectionObserver(e=>{
+  e.forEach(x=>{
+    if(x.isIntersecting&&!typed){
+      typed=true;let i=0;
+      const iv=setInterval(()=>{finMsg.textContent=finalText.slice(0,i);i++;if(i>finalText.length)clearInterval(iv);},30);
+    }
+  });
+},{threshold:0.5}).observe(finMsg);
+
+// PARALLAX
+window.addEventListener('scroll',()=>{
+  const y=window.scrollY,h=document.querySelector('.hero');
+  if(y<window.innerHeight){h.style.transform=`translateY(${y*0.2}px)`;h.style.opacity=1-(y/window.innerHeight)*1.1;}
+},{passive:true});
+
+// TAB
+document.addEventListener('visibilitychange',()=>{
+  document.title=document.hidden?'El caso sigue abierto...':'EL ÚLTIMO TREN — Misterio';
+});
+</script>
+</body>
+</html>
