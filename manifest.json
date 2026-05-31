@@ -160,6 +160,18 @@
       "likes": 31,
       "lecturas": 198,
       "comentarios": []
+    },
+    {
+      "id": "el-ultimo-tren",
+      "archivo": "historias/el-ultimo-tren.html",
+      "titulo": "El Último Tren",
+      "descripcion": "Había dos tazas de té caliente y un libro abierto, pero los pasajeros simplemente dejaron de estar.",
+      "pilar": "el-fugitivo",
+      "subgenero": "expedientes-perdidos",
+      "fecha": "2026-03-27",
+      "likes": 0,
+      "lecturas": 0,
+      "comentarios": []
     }
   ]
 }
