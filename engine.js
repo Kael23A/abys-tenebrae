@@ -1,25 +1,19 @@
 /**
  * ═══════════════════════════════════════════════════════
- * ABYS TENEBRAE V.2.0 — ENGINE.JS (Final Completo)
+ * ABYS TENEBRAE V.2.1 — ENGINE.JS
  *
- * Incluye:
- * - Navegación SPA sin recarga
- * - Pilares + subgéneros con color por pilar
- * - Algoritmo tendencias (likes×3 + lecturas×1 + comentarios×2)
- * - Tiempo estimado de lectura · Fecha legible
- * - Scroll automático inteligente (prioridad táctil)
- * - Barra de progreso (inicio→fin de historia, antes de comentarios)
- * - Botón encendido lateral
- * - Navegación Anterior/Siguiente (dentro del subgénero, sin repetir)
- * - Modo Luna/Sol (dark/light, variables CSS)
- * - Corazón animado (localStorage, animación fuego)
- * - Biblioteca personal (localStorage, panel Fixed)
- * - Compartir página + historia con modal
- * - Búsqueda en tiempo real
- * - Historia aleatoria
- * - SEO dinámico por historia
- * - Hash routing para enlaces directos
- * - Disqus integrado (abys-tenebrae)
+ * Mejoras sobre V.2.0:
+ * - Fix bug crítico: historialIdx duplicado en estado S
+ *   → renombrado a subHistIdx (subgénero) y vistasIdx (vistas)
+ * - Historias con HTML propio se renderizan en <iframe>
+ *   para preservar su CSS, JS y animaciones completas
+ * - Barra de progreso y autoscroll sincronizados con iframe
+ *   vía postMessage
+ * - Event listener de btn-inicio-lectura ya no se acumula
+ *   en cada apertura (se usa AbortController)
+ * - fetch de manifest usa versión fija del build, no Date.now()
+ * - Manejo de error de manifest con mensaje visible al usuario
+ * - Contadores de lecturas/likes documentados como client-side
  * ═══════════════════════════════════════════════════════
  */
 
@@ -32,19 +26,32 @@ const AT = (() => {
     pilarActivo:     null,
     subgeneroActivo: null,
     historiaActiva:  null,
-    historialSub:    [],   // orden de lectura en subgénero actual
-    historialIdx:    -1,
+
+    // Historial de navegación dentro del subgénero (shuffle anterior/siguiente)
+    historialSub:    [],
+    subHistIdx:      -1,   // ANTES: historialIdx (1ª def.) — renombrado para evitar colisión
+
     autoScroll:      false,
     autoScrollId:    null,
     scrollVel:       0.7,
-    likes:    JSON.parse(localStorage.getItem('at_likes')    || '{}'),
-    lecturas: JSON.parse(localStorage.getItem('at_lecturas') || '{}'),
-    biblioteca: JSON.parse(localStorage.getItem('at_bib')   || '[]'),
-    tema:     localStorage.getItem('at_tema') || 'dark',
-    historialVistas: [],  // historial de navegación de páginas
-    historialIdx:    -1,  // posición actual en historial de vistas
+
+    likes:     JSON.parse(localStorage.getItem('at_likes')    || '{}'),
+    lecturas:  JSON.parse(localStorage.getItem('at_lecturas') || '{}'),
+    biblioteca: JSON.parse(localStorage.getItem('at_bib')     || '[]'),
+    tema:      localStorage.getItem('at_tema') || 'dark',
+
+    // Historial lineal de vistas visitadas (Volver / Adelante)
+    historialVistas:       [],
+    vistasIdx:             -1, // ANTES: historialIdx (2ª def.) — renombrado para evitar colisión
     _navegandoPorHistorial: false,
+
     busquedaAbierta: false,
+
+    // AbortController activo para limpiar listeners de lectura al cambiar de historia
+    _lecturaAbort: null,
+
+    // Referencia al iframe de la historia activa (si aplica)
+    _iframeActivo: null,
   };
 
   const $  = s => document.querySelector(s);
@@ -83,10 +90,26 @@ const AT = (() => {
   // ── Manifest ────────────────────────────────────────
   async function cargarManifest() {
     try {
-      const r = await fetch('./manifest.json?' + Date.now());
+      // Se usa 'no-cache' en lugar de ?Date.now() para respetar ETags del servidor
+      // pero siempre revalidar (nunca usar copia stale)
+      const r = await fetch('./manifest.json', { cache: 'no-cache' });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
       S.manifest = await r.json();
     } catch(e) {
       S.manifest = { meta:{}, pilares:[], historias:[] };
+      // Mostrar error visible al usuario en vez de silencio total
+      const app = $('#app');
+      if (app) app.innerHTML = `
+        <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem;text-align:center;">
+          <div>
+            <p style="font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.3em;color:var(--text-muted);text-transform:uppercase;margin-bottom:1rem;">
+              ◈ Error al cargar el manifiesto
+            </p>
+            <p style="font-family:var(--font-body);font-style:italic;color:var(--text-faint);font-size:0.9rem;">
+              El abismo no responde. Recarga la página o inténtalo más tarde.
+            </p>
+          </div>
+        </div>`;
     }
   }
 
@@ -128,15 +151,20 @@ const AT = (() => {
     const base = 'Abys Tenebrae';
     document.title = titulo ? `${titulo} · ${base}` : base;
     const sm = (sel,attr,val) => {
-      let el=$(sel); if(!el){el=document.createElement('meta');document.head.appendChild(el);}
+      let el=$(sel);
+      if(!el){el=document.createElement('meta');document.head.appendChild(el);}
       el.setAttribute(attr,val);
     };
     sm('meta[name="description"]','content', descripcion || 'Donde los límites de la realidad se disuelven en el umbral de lo innombrable.');
     sm('meta[property="og:title"]','content', titulo ? `${titulo} · ${base}` : base);
     sm('meta[property="og:description"]','content', descripcion || '');
-    let ogUrl=$('meta[property="og:url"]');
-    if(!ogUrl){ogUrl=document.createElement('meta');ogUrl.setAttribute('property','og:url');document.head.appendChild(ogUrl);}
-    ogUrl.setAttribute('content',location.href);
+    let ogUrl = $('meta[property="og:url"]');
+    if(!ogUrl){
+      ogUrl = document.createElement('meta');
+      ogUrl.setAttribute('property','og:url');
+      document.head.appendChild(ogUrl);
+    }
+    ogUrl.setAttribute('content', location.href);
   }
 
   // ── MODO TEMA LUNA/SOL ───────────────────────────────
@@ -153,13 +181,11 @@ const AT = (() => {
 
   function aplicarTema(tema, animado) {
     document.documentElement.setAttribute('data-theme', tema);
-    // Recargar Disqus con el tema correcto si está activo
     if (animado && window.DISQUS && S.historiaActiva) {
       setTimeout(() => cargarDisqus(S.historiaActiva), 300);
     }
     const icon = $('#tema-icon');
     if (icon) {
-      // Usar SVG que respeta el color CSS (no emojis del sistema)
       icon.innerHTML = tema === 'dark'
         ? '<svg viewBox="0 0 14 14" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M11 9A5 5 0 1 1 5 3a3.5 3.5 0 0 0 6 6z"/></svg>'
         : '<svg viewBox="0 0 14 14" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="7" r="2.5"/><line x1="7" y1="1" x2="7" y2="2.5"/><line x1="7" y1="11.5" x2="7" y2="13"/><line x1="1" y1="7" x2="2.5" y2="7"/><line x1="11.5" y1="7" x2="13" y2="7"/><line x1="2.9" y1="2.9" x2="4" y2="4"/><line x1="10" y1="10" x2="11.1" y2="11.1"/><line x1="11.1" y1="2.9" x2="10" y2="4"/><line x1="4" y1="10" x2="2.9" y2="11.1"/></svg>';
@@ -177,7 +203,6 @@ const AT = (() => {
 
     const { pilares, historias } = S.manifest;
 
-    // Stats
     const statsEl = $('#hero-stats');
     if (statsEl) {
       statsEl.innerHTML = `
@@ -187,7 +212,6 @@ const AT = (() => {
       `;
     }
 
-    // Pilares
     const grid = $('#pilares-grid');
     if (grid) {
       grid.innerHTML = pilares.map(p => {
@@ -206,7 +230,6 @@ const AT = (() => {
       );
     }
 
-    // Flujo
     const recientes  = [...historias].sort((a,b)=>new Date(b.fecha)-new Date(a.fecha)).slice(0,6);
     const tendencias = [...historias].sort((a,b)=>puntuacion(b)-puntuacion(a)).slice(0,6);
     const flujo = $('#zona-flujo');
@@ -222,7 +245,6 @@ const AT = (() => {
       bindCards($('#lista-tend'));
     }
 
-    // Pulso
     const pulso = $('#zona-pulso');
     if (pulso) {
       const coms = comentariosTendencia(historias);
@@ -293,7 +315,6 @@ const AT = (() => {
         </div>`:''}
     `;
 
-
     vista.querySelectorAll('.chip').forEach(c =>
       c.addEventListener('click', () => renderPilar(pilarId, c.dataset.sub||null))
     );
@@ -347,9 +368,18 @@ const AT = (() => {
   }
 
   // ── ABRIR HISTORIA ───────────────────────────────────
+  // Detecta automáticamente si el archivo HTML tiene su propio
+  // <style> o <script> (historia con atmósfera propia) y en ese
+  // caso la muestra en un <iframe> que preserva todo su entorno.
+  // Si es HTML plano (solo body), lo inyecta directamente como antes.
   async function abrirHistoria(historiaId, fragmentoId=null) {
     const h = S.manifest.historias.find(x=>x.id===historiaId);
     if (!h) return;
+
+    // Cancelar AbortController de la historia anterior para limpiar
+    // el listener de btn-inicio-lectura sin acumular
+    if (S._lecturaAbort) S._lecturaAbort.abort();
+    S._lecturaAbort = new AbortController();
 
     setVista('lectura');
     S.historiaActiva = h;
@@ -362,7 +392,7 @@ const AT = (() => {
     setSEO({ titulo:h.titulo, descripcion:h.descripcion });
     history.replaceState(null,'',`#${h.id}`);
 
-    // Contar lectura una vez por sesión
+    // Contar lectura una vez por sesión (client-side)
     if (!S.lecturas[h.id]) {
       h.lecturas = (h.lecturas||0) + 1;
       S.lecturas[h.id] = true;
@@ -374,16 +404,15 @@ const AT = (() => {
       ? S.manifest.historias.filter(x=>x.pilar===h.pilar&&x.subgenero===h.subgenero)
       : S.manifest.historias.filter(x=>x.pilar===h.pilar);
 
-    // Si no hay historial activo o cambió de grupo, iniciar nuevo shuffle
     const grupoIds = grupo.map(x=>x.id).sort().join(',');
     if (!S.historialSub.length || S.historialSub._grupo !== grupoIds) {
       S.historialSub = shuffleSinRepetir(grupo.map(x=>x.id));
       S.historialSub._grupo = grupoIds;
     }
-    S.historialIdx = S.historialSub.indexOf(historiaId);
-    if (S.historialIdx === -1) {
+    S.subHistIdx = S.historialSub.indexOf(historiaId);
+    if (S.subHistIdx === -1) {
       S.historialSub.unshift(historiaId);
-      S.historialIdx = 0;
+      S.subHistIdx = 0;
     }
 
     const cont = $('#lectura-contenido');
@@ -392,19 +421,47 @@ const AT = (() => {
     cont.innerHTML = `<div style="text-align:center;padding:8rem 2rem;color:var(--text-faint);
       font-family:var(--font-mono);font-size:0.56rem;letter-spacing:0.22em">CARGANDO</div>`;
 
-    let cuerpo='', tiempo='';
+    // Limpiar iframe anterior si existe
+    limpiarIframe();
+
     try {
-      const res = await fetch(h.archivo+'?'+Date.now());
+      const res = await fetch(h.archivo, { cache: 'no-cache' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const html = await res.text();
-      const doc  = new DOMParser().parseFromString(html,'text/html');
-      cuerpo = doc.body ? doc.body.innerHTML : html;
-      tiempo = tiempoLectura(doc.body?.textContent||html);
+
+      // Detectar si el HTML tiene atmósfera propia (<style> o <script> en <head>)
+      const tieneAtmosfera = /<style[\s>]/i.test(html) || /<script[\s>]/i.test(html);
+
+      if (tieneAtmosfera) {
+        // ── MODO IFRAME: historia con mundo visual propio ──────────────────
+        renderHistoriaIframe(h, html, color, pilar, sub, fragmentoId);
+      } else {
+        // ── MODO INLINE: HTML plano, inyección directa ─────────────────────
+        const doc   = new DOMParser().parseFromString(html,'text/html');
+        const cuerpo = doc.body ? doc.body.innerHTML : html;
+        const tiempo = tiempoLectura(doc.body?.textContent||html);
+        renderHistoriaInline(h, cuerpo, tiempo, color, pilar, sub, fragmentoId);
+      }
     } catch(e) {
-      cuerpo = `<p><em>${h.descripcion}</em></p><hr>
+      const cuerpo = `<p><em>${h.descripcion}</em></p><hr>
         <p style="color:var(--text-muted);font-size:0.85rem">
           Archivo no encontrado: <code>${h.archivo}</code>
         </p>`;
+      renderHistoriaInline(h, cuerpo, '', color, pilar, sub, null);
     }
+
+    activarProgressBar();
+    cargarDisqus(h);
+    mostrarCapaInteraccion(h, color);
+    actualizarNavFlechas();
+    $('#btn-retorno-top')?.classList.add('visible');
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  // ── Renderizado inline (HTML plano sin atmósfera) ────
+  function renderHistoriaInline(h, cuerpo, tiempo, color, pilar, sub, fragmentoId) {
+    const cont = $('#lectura-contenido');
+    if (!cont) return;
 
     cont.innerHTML = `
       <div id="lectura-meta">
@@ -423,30 +480,125 @@ const AT = (() => {
       <div id="lectura-fin-marcador"></div>
     `;
 
-
-
     if (fragmentoId) {
-      setTimeout(()=>{
+      setTimeout(() => {
         const el = document.getElementById(fragmentoId);
         if (el) el.scrollIntoView({behavior:'smooth',block:'center'});
-      },500);
+      }, 500);
     }
 
-    // Bind botón inicio en lectura-meta
-    document.addEventListener('click', function _inicioLect(e) {
-      if (e.target.closest('#btn-inicio-lectura')) {
-        document.removeEventListener('click', _inicioLect);
-        detenerAutoScroll(); ocultarNavFlechas();
-        history.replaceState(null,'',location.pathname);
-        renderHome();
+    // Usar AbortController para que el listener se limpie automáticamente
+    // al abrir la siguiente historia (sin acumular handlers)
+    $('#btn-inicio-lectura')?.addEventListener('click', () => {
+      detenerAutoScroll(); ocultarNavFlechas();
+      history.replaceState(null,'',location.pathname);
+      renderHome();
+    }, { signal: S._lecturaAbort.signal });
+  }
+
+  // ── Renderizado iframe (historia con atmósfera propia) ─
+  function renderHistoriaIframe(h, html, color, pilar, sub, fragmentoId) {
+    const cont = $('#lectura-contenido');
+    if (!cont) return;
+
+    // Inyectar un script puente en el HTML de la historia para que pueda
+    // comunicar su progreso de scroll al engine vía postMessage
+    const scriptPuente = `
+<script>
+(function(){
+  // Informar progreso de scroll al engine padre
+  let ticking = false;
+  window.addEventListener('scroll', function() {
+    if (!ticking) {
+      requestAnimationFrame(function() {
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+        const scrollH   = document.documentElement.scrollHeight - window.innerHeight;
+        const pct = scrollH > 0 ? Math.min(scrollTop / scrollH, 1) : 0;
+        window.parent.postMessage({ type: 'at_scroll', pct: pct }, '*');
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }, { passive: true });
+
+  // Escuchar comandos de autoscroll desde el engine
+  window.addEventListener('message', function(e) {
+    if (!e.data || e.data.type !== 'at_autoscroll') return;
+    if (e.data.action === 'step') {
+      window.scrollBy(0, e.data.vel || 0.7);
+      // Avisar si llegó al final
+      const atEnd = (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 5;
+      if (atEnd) window.parent.postMessage({ type: 'at_end' }, '*');
+    }
+  });
+})();
+<\/script>`;
+
+    // Insertar el script puente antes de </body>
+    const htmlConPuente = html.replace(/<\/body>/i, scriptPuente + '</body>');
+
+    // Metainfo compacta sobre el iframe (dentro de lectura-contenido)
+    cont.innerHTML = `
+      <div id="lectura-meta">
+        <button id="btn-inicio-lectura" class="meta-inicio">Inicio</button>
+        ${pilar?`<span class="sep">·</span><span style="color:${color}">${pilar.icono} ${pilar.nombre}</span>`:''}
+        ${sub?`<span class="sep">›</span><span>${sub.nombre}</span>`:''}
+        <span class="sep">·</span>
+        <span>◈ ${fmt(h.lecturas||0)} lecturas</span>
+        <span class="sep">·</span>
+        <span>${fechaLegible(h.fecha)}</span>
+      </div>
+      <div id="historia-iframe-wrap">
+        <iframe id="historia-iframe"
+          sandbox="allow-scripts allow-same-origin"
+          scrolling="yes"
+          title="${h.titulo}"
+          aria-label="Historia: ${h.titulo}">
+        </iframe>
+      </div>
+      <div id="lectura-fin-marcador"></div>
+    `;
+
+    const iframe = document.getElementById('historia-iframe');
+    S._iframeActivo = iframe;
+
+    // Escribir el HTML en el iframe via srcdoc (compatible con GitHub Pages / Vercel)
+    iframe.srcdoc = htmlConPuente;
+
+    // Escuchar mensajes del iframe para barra de progreso
+    const onMsg = (e) => {
+      if (!e.data) return;
+      if (e.data.type === 'at_scroll') {
+        const bar = $('#progress-bar');
+        if (bar) bar.style.width = (e.data.pct * 100) + '%';
       }
+      if (e.data.type === 'at_end') {
+        detenerAutoScroll();
+        mostrarToast('◉ Fin del relato');
+      }
+    };
+    window.addEventListener('message', onMsg);
+
+    // Limpiar listener de mensaje al cambiar de historia
+    S._lecturaAbort.signal.addEventListener('abort', () => {
+      window.removeEventListener('message', onMsg);
     });
-    activarProgressBar();
-    cargarDisqus(h);
-    mostrarCapaInteraccion(h, color);
-    actualizarNavFlechas();
-    $('#btn-retorno-top')?.classList.add('visible');
-    window.scrollTo({top:0,behavior:'smooth'});
+
+    // Listener del botón inicio con AbortController
+    $('#btn-inicio-lectura')?.addEventListener('click', () => {
+      detenerAutoScroll(); ocultarNavFlechas();
+      history.replaceState(null,'',location.pathname);
+      renderHome();
+    }, { signal: S._lecturaAbort.signal });
+  }
+
+  function limpiarIframe() {
+    const prev = document.getElementById('historia-iframe');
+    if (prev) {
+      // Limpiar el srcdoc para detener scripts internos
+      try { prev.srcdoc = ''; } catch(_) {}
+    }
+    S._iframeActivo = null;
   }
 
   // ── Shuffle sin repetir ──────────────────────────────
@@ -484,7 +636,6 @@ const AT = (() => {
     $('#btn-like').addEventListener('click', () => toggleLike(h, color));
     $('#btn-guardar-bib').addEventListener('click', () => toggleBiblioteca(h));
     $('#btn-comp-lect').addEventListener('click', () => abrirShareModal(h.id));
-
   }
 
   function ocultarCapaInteraccion() {
@@ -507,20 +658,14 @@ const AT = (() => {
     mostrarCapaInteraccion(h, color);
   }
 
-
   // ── Navegación Lineal de Historial ──────────────────
-  //    ← va atrás en el historial de vistas visitadas
-  //    → va adelante (si hay páginas siguientes)
-  //    No buclea entre 2 páginas
-
   function actualizarBtnVolverFlotante() {
-    const btnAtras     = $('#btn-volver-flotante');
-    const btnAdelante  = $('#btn-avanzar-flotante');
+    const btnAtras    = $('#btn-volver-flotante');
+    const btnAdelante = $('#btn-avanzar-flotante');
     if (!btnAtras || !btnAdelante) return;
 
-    // Mostrar en cualquier vista excepto home cuando hay historial
-    const tieneAtras    = S.historialIdx > 0;
-    const tieneAdelante = S.historialIdx < S.historialVistas.length - 1;
+    const tieneAtras    = S.vistasIdx > 0;
+    const tieneAdelante = S.vistasIdx < S.historialVistas.length - 1;
     const noEsHome      = S.vista !== 'home';
 
     btnAtras.classList.toggle('visible',    noEsHome && tieneAtras);
@@ -528,20 +673,19 @@ const AT = (() => {
   }
 
   function initBtnVolverFlotante() {
-    const btnAtras    = $('#btn-volver-flotante');
-    const btnAdelante = $('#btn-avanzar-flotante');
-    if (!btnAtras) return;
-
-    btnAtras.addEventListener('click', () => {
-      if (S.historialIdx <= 0) return;
-      S.historialIdx--;
-      navegarAEntrada(S.historialVistas[S.historialIdx]);
-    });
-
-    btnAdelante?.addEventListener('click', () => {
-      if (S.historialIdx >= S.historialVistas.length - 1) return;
-      S.historialIdx++;
-      navegarAEntrada(S.historialVistas[S.historialIdx]);
+    // Los botones viven dentro de capa-interaccion que se regenera en cada historia,
+    // así que usamos delegación de eventos en el documento
+    document.addEventListener('click', e => {
+      if (e.target.closest('#btn-volver-flotante')) {
+        if (S.vistasIdx <= 0) return;
+        S.vistasIdx--;
+        navegarAEntrada(S.historialVistas[S.vistasIdx]);
+      }
+      if (e.target.closest('#btn-avanzar-flotante')) {
+        if (S.vistasIdx >= S.historialVistas.length - 1) return;
+        S.vistasIdx++;
+        navegarAEntrada(S.historialVistas[S.vistasIdx]);
+      }
     });
   }
 
@@ -549,7 +693,7 @@ const AT = (() => {
     if (!entrada) return;
     detenerAutoScroll(); ocultarNavFlechas();
     history.replaceState(null,'',location.pathname);
-    S._navegandoPorHistorial = true; // flag para no guardar esta navegación
+    S._navegandoPorHistorial = true;
     if (entrada.vista === 'home') {
       S.pilarActivo = null; S.subgeneroActivo = null;
       renderHome();
@@ -563,14 +707,12 @@ const AT = (() => {
     S._navegandoPorHistorial = false;
   }
 
-
   // ── Botón atrás del navegador ──────────────────────
   function initPopState() {
-    window.addEventListener('popstate', (e) => {
-      // Navegar atrás en el historial interno de la SPA
-      if (S.historialVistas.length > 0 && S.historialIdx > 0) {
-        S.historialIdx--;
-        const prev = S.historialVistas[S.historialIdx];
+    window.addEventListener('popstate', () => {
+      if (S.historialVistas.length > 0 && S.vistasIdx > 0) {
+        S.vistasIdx--;
+        const prev = S.historialVistas[S.vistasIdx];
         S._navegandoPorHistorial = true;
         if (prev.vista === 'home') {
           S.pilarActivo = null; S.subgeneroActivo = null;
@@ -583,7 +725,6 @@ const AT = (() => {
         S._navegandoPorHistorial = false;
         actualizarBtnVolverFlotante();
       } else {
-        // Si no hay historial, ir al home sin salir
         history.pushState(null, '');
         renderHome();
       }
@@ -685,14 +826,13 @@ const AT = (() => {
 
   function navegarHistoria(dir) {
     if (!S.historialSub.length) return;
-    let nuevoIdx = S.historialIdx + dir;
-    // Si llegó al final, reinicia shuffle
+    let nuevoIdx = S.subHistIdx + dir;
     if (nuevoIdx >= S.historialSub.length) {
       S.historialSub = shuffleSinRepetir(S.historialSub);
       nuevoIdx = 0;
     }
     if (nuevoIdx < 0) nuevoIdx = S.historialSub.length - 1;
-    S.historialIdx = nuevoIdx;
+    S.subHistIdx = nuevoIdx;
     const id = S.historialSub[nuevoIdx];
     if (id) abrirHistoria(id);
   }
@@ -803,14 +943,17 @@ const AT = (() => {
 
   // ── Gestión de vistas ────────────────────────────────
   function setVista(vista) {
-    // Guardar vista en historial lineal (no guardar si estamos navegando por historial)
     if (S.vista && S.vista !== vista && !S._navegandoPorHistorial) {
       // Truncar historial futuro al navegar hacia nueva página
-      S.historialVistas = S.historialVistas.slice(0, S.historialIdx + 1);
-      S.historialVistas.push({ vista: S.vista, pilar: S.pilarActivo, sub: S.subgeneroActivo, historia: S.historiaActiva?.id });
+      S.historialVistas = S.historialVistas.slice(0, S.vistasIdx + 1);
+      S.historialVistas.push({
+        vista: S.vista,
+        pilar: S.pilarActivo,
+        sub: S.subgeneroActivo,
+        historia: S.historiaActiva?.id
+      });
       if (S.historialVistas.length > 20) S.historialVistas.shift();
-      S.historialIdx = S.historialVistas.length - 1;
-      // pushState para que el botón atrás del navegador funcione dentro de la SPA
+      S.vistasIdx = S.historialVistas.length - 1;
       if (vista !== 'home') {
         history.pushState({ vista, pilar: S.pilarActivo, sub: S.subgeneroActivo }, '');
       }
@@ -820,6 +963,7 @@ const AT = (() => {
     ['#vista-home','#vista-pilar','#vista-lectura'].forEach(s=>$(s)?.classList.remove('visible'));
     ocultarCapaInteraccion();
     limpiarDisqus();
+    limpiarIframe();
     desactivarProgressBar();
     $('#btn-retorno-top')?.classList.remove('visible');
     detenerAutoScroll();
@@ -832,6 +976,8 @@ const AT = (() => {
   function initProgressBar() {
     window.addEventListener('scroll', () => {
       if (S.vista !== 'lectura') return;
+      // Si hay iframe activo, el progreso lo manda el iframe vía postMessage
+      if (S._iframeActivo) return;
       const fin = document.getElementById('lectura-fin-marcador');
       if (!fin) return;
       const top    = window.scrollY;
@@ -844,9 +990,11 @@ const AT = (() => {
       if (bar) bar.style.width = pct + '%';
     }, {passive:true});
   }
+
   function activarProgressBar()    { $('#progress-bar')?.classList.add('visible'); }
   function desactivarProgressBar() {
-    const b=$('#progress-bar'); if(b){b.classList.remove('visible');b.style.width='0%';}
+    const b=$('#progress-bar');
+    if(b){b.classList.remove('visible');b.style.width='0%';}
   }
 
   // ── Auto Scroll ──────────────────────────────────────
@@ -854,8 +1002,11 @@ const AT = (() => {
     document.addEventListener('click', e => {
       if (S.vista !== 'lectura') return;
       if (e.target.closest('button,a,#capa-interaccion,.nav-flecha,#btn-biblioteca,#panel-biblioteca,#btn-volver-flotante,#btn-avanzar-flotante,#btn-retorno-top,.bib-item,.bib-item-remove,#btn-tema,#btn-buscar,#btn-aleatorio,#btn-compartir-pagina,#autoscroll-indicator,#nav-historial')) return;
+      // No activar si el clic fue dentro del iframe
+      if (e.target.closest('#historia-iframe-wrap')) return;
       toggleAutoScroll();
     });
+
     let ty=0, timer=null;
     document.addEventListener('touchstart',e=>{ty=e.touches[0].clientY;},{passive:true});
     document.addEventListener('touchmove',e=>{
@@ -895,9 +1046,18 @@ const AT = (() => {
     cancelAnimationFrame(S.autoScrollId);
     const frame = () => {
       if (!S.autoScroll) return;
-      window.scrollBy(0, S.scrollVel);
-      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 5) {
-        detenerAutoScroll(); mostrarToast('◉ Fin del relato'); return;
+      // Si hay iframe activo, enviar comando de scroll al iframe
+      if (S._iframeActivo) {
+        try {
+          S._iframeActivo.contentWindow.postMessage({
+            type: 'at_autoscroll', action: 'step', vel: S.scrollVel
+          }, '*');
+        } catch(_) {}
+      } else {
+        window.scrollBy(0, S.scrollVel);
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 5) {
+          detenerAutoScroll(); mostrarToast('◉ Fin del relato'); return;
+        }
       }
       S.autoScrollId = requestAnimationFrame(frame);
     };
@@ -906,15 +1066,19 @@ const AT = (() => {
 
   function pausarScroll()  { cancelAnimationFrame(S.autoScrollId); }
   function detenerAutoScroll() {
-    S.autoScroll = false; cancelAnimationFrame(S.autoScrollId);
+    S.autoScroll = false;
+    cancelAnimationFrame(S.autoScrollId);
     $('#autoscroll-indicator')?.classList.remove('active');
   }
 
   // ── Retorno Top ──────────────────────────────────────
   function initBtnRetornoTop() {
-    $('#btn-retorno-top')?.addEventListener('click',()=>
-      window.scrollTo({top:0,behavior:'smooth'})
-    );
+    $('#btn-retorno-top')?.addEventListener('click', () => {
+      if (S._iframeActivo) {
+        try { S._iframeActivo.contentWindow.scrollTo({top:0,behavior:'smooth'}); } catch(_) {}
+      }
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
   }
 
   // ── Buscador ─────────────────────────────────────────
@@ -974,7 +1138,6 @@ const AT = (() => {
       history.replaceState(null,'',location.pathname);
       renderHome();
     });
-
   }
 
   // ── Hash routing ─────────────────────────────────────
@@ -987,6 +1150,7 @@ const AT = (() => {
 
   // ── Disqus ───────────────────────────────────────────
   const DISQUS_SHORTNAME = 'abys-tenebrae';
+
   function initDisqus() {
     if(document.getElementById('disqus-script'))return;
     window.disqus_config=function(){};
@@ -997,6 +1161,7 @@ const AT = (() => {
     s.async=true;
     document.head.appendChild(s);
   }
+
   function cargarDisqus(h) {
     let wrap=document.getElementById('disqus-section');
     if(!wrap){
@@ -1021,6 +1186,7 @@ const AT = (() => {
       };
     }
   }
+
   function limpiarDisqus() {
     document.getElementById('disqus-section')?.remove();
   }
@@ -1037,4 +1203,4 @@ const AT = (() => {
   return { init };
 })();
 
-document.addEventListener('DOMContentLoaded', ()=> AT.init());
+document.addEventListener('DOMContentLoaded', () => AT.init());

@@ -852,8 +852,57 @@ body::before {
   border-color: rgba(0,0,0,0.15);
   color: var(--text-muted);
 }
+/* ── Historia con iframe (atmósfera propia) ── */
+#historia-iframe-wrap {
+  position: relative;
+  width: 100%;
+  /* El iframe ocupa toda la ventana menos el header fijo */
+  height: calc(100vh - 56px);
+  margin-top: 1rem;
+  overflow: hidden;
+  border-radius: var(--r-sm);
+}
+#historia-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+  background: transparent;
+}
+
+/* En modo iframe, el contenedor de lectura no necesita padding propio
+   porque el iframe ocupa el espacio completo */
+#vista-lectura:has(#historia-iframe-wrap) #lectura-contenido {
+  padding-top: 5rem;
+  padding-left: 0;
+  padding-right: 0;
+  padding-bottom: 4rem;
+  max-width: 100%;
+}
+
+/* lectura-meta dentro de un contexto iframe: recupera padding horizontal */
+#vista-lectura:has(#historia-iframe-wrap) #lectura-meta {
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+/* Fallback para navegadores sin :has() — el wrapper absorbe el espacio */
+#historia-iframe-wrap + #lectura-fin-marcador {
+  height: 1px;
+  visibility: hidden;
+}
+
 /* ── Responsive ── */
 @media (max-width:580px) {
+  #historia-iframe-wrap {
+    height: calc(100vh - 48px);
+    margin-top: 0.5rem;
+    border-radius: 0;
+  }
+  #vista-lectura:has(#historia-iframe-wrap) #lectura-meta {
+    padding-left: 1.2rem;
+    padding-right: 1.2rem;
+  }
   #site-header { padding:0 1.2rem; }
   #btn-compartir-pagina .share-text { display:none; }
   #pilares-grid { grid-template-columns:1fr; }
