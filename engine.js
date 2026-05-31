@@ -549,6 +549,11 @@ const AT = (() => {
         <span>${fechaLegible(h.fecha)}</span>
       </div>
       <div id="historia-iframe-wrap">
+        <button id="btn-fullscreen" title="Pantalla completa" aria-label="Pantalla completa">
+          <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4">
+            <path d="M1 5V2h3M12 2h3v3M15 11v3h-3M4 14H1v-3"/>
+          </svg>
+        </button>
         <iframe id="historia-iframe"
           sandbox="allow-scripts allow-same-origin"
           scrolling="yes"
@@ -561,6 +566,15 @@ const AT = (() => {
 
     const iframe = document.getElementById('historia-iframe');
     S._iframeActivo = iframe;
+
+    // Botón pantalla completa
+    document.getElementById('btn-fullscreen')?.addEventListener('click', () => {
+      if (iframe.requestFullscreen) {
+        iframe.requestFullscreen();
+      } else if (iframe.webkitRequestFullscreen) {
+        iframe.webkitRequestFullscreen();
+      }
+    });
 
     // Escribir el HTML en el iframe via srcdoc (compatible con GitHub Pages / Vercel)
     iframe.srcdoc = htmlConPuente;

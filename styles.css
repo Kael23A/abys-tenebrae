@@ -338,37 +338,53 @@ body::before {
   50%      { opacity:1;   transform:scale(1.2); }
 }
 
-/* ── Flechas Navegación Anterior/Siguiente ── */
+/* ── Flechas Navegación Anterior/Siguiente historia ── */
+/* Al 68% de altura: debajo del centro, lejos del header y de la barra inferior */
 .nav-flecha {
-  position:fixed; top:50%; z-index:840;
-  transform:translateY(-50%);
-  background:none; border:none; cursor:pointer;
-  opacity:0; pointer-events:none;
-  transition:var(--t-bruma);
+  position: fixed;
+  top: 68%;
+  z-index: 840;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: var(--t-bruma);
 }
-#nav-anterior { left:0.6rem; }
-#nav-siguiente { right:0.6rem; }
-.nav-flecha.visible { opacity:1; pointer-events:all; }
+#nav-anterior { left: 0.5rem; }
+#nav-siguiente { right: 0.5rem; }
+.nav-flecha.visible { opacity: 1; pointer-events: all; }
 
 .nav-flecha-inner {
-  display:flex; align-items:center; justify-content:center;
-  width:36px; height:52px;
-  font-family:var(--font-display); font-size:1.8rem;
-  color:var(--text-faint);
-  border:1px solid transparent;
-  border-radius:var(--r-sm);
-  transition:var(--t-bruma);
-  line-height:1;
-  clip-path:polygon(0% 8px, calc(100% - 8px) 0%, 100% 50%, calc(100% - 8px) 100%, 0% calc(100% - 8px));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 56px;
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  color: var(--text-faint);
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  transition: var(--t-bruma);
+  line-height: 1;
+  clip-path: polygon(0% 8px, calc(100% - 8px) 0%, 100% 50%, calc(100% - 8px) 100%, 0% calc(100% - 8px));
 }
 #nav-anterior .nav-flecha-inner {
-  clip-path:polygon(8px 0%, 100% 0%, 100% 100%, 8px 100%, 0% 50%);
+  clip-path: polygon(8px 0%, 100% 0%, 100% 100%, 8px 100%, 0% 50%);
 }
 .nav-flecha:hover .nav-flecha-inner {
-  color:var(--pilar-activo);
-  border-color:var(--border-active);
-  background:rgba(196,168,130,0.04);
-  filter:drop-shadow(0 0 6px var(--pilar-activo));
+  color: var(--pilar-activo);
+  border-color: var(--border-active);
+  background: rgba(196,168,130,0.07);
+  filter: drop-shadow(0 0 8px var(--pilar-activo));
+}
+[data-theme="light"] .nav-flecha-inner {
+  background: rgba(240,236,228,0.92);
+  border-color: rgba(0,0,0,0.1);
 }
 
 /* ── Botón Biblioteca (Fixed todas las páginas) ── */
@@ -758,61 +774,55 @@ body::before {
 .anim-d4 { animation-delay:0.28s; }
 
 
-/* ── Botón Volver Flotante (historial) ── */
-
-/* ── Navegación Historial (Volver / Adelante) ── */
-/* nav-historial — segunda fila dentro de la capa de interacción */
+/* ── Navegación Historial (Volver / Adelante páginas) ── */
+/* Fila separada dentro de capa-interaccion, con divisor visual
+   para no confundirla con Like / Guardar / Compartir */
 #nav-historial {
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 2rem;
+  gap: 1.8rem;
   pointer-events: all;
-  padding-top: 0.2rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border);
+  margin-top: 0.2rem;
 }
-/* Separador central */
+/* Punto separador central entre Volver y Adelante */
 #nav-historial::before {
-  content: '';
-  width: 1px; height: 10px;
-  background: var(--border);
+  content: '·';
+  color: var(--text-faint);
+  font-size: 0.7rem;
   flex-shrink: 0;
+  opacity: 0.4;
 }
-/* Botones volver/adelante — dentro de capa-interaccion */
+/* Botones volver/adelante */
 #btn-volver-flotante,
 #btn-avanzar-flotante {
   background: none;
   border: none;
   cursor: pointer;
-  /* Ocultos por defecto, JS los muestra según historial */
   display: none;
-  align-items: center; gap: 6px;
+  align-items: center;
+  gap: 5px;
   font-family: var(--font-mono);
-  font-size: 0.52rem;
-  letter-spacing: 0.18em;
+  font-size: 0.5rem;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--text-faint);
-  padding: 4px 0;
+  padding: 3px 0;
   transition: var(--t-fast);
 }
 #btn-volver-flotante.visible,
-#btn-avanzar-flotante.visible {
-  display: flex;
-}
+#btn-avanzar-flotante.visible { display: flex; }
 #btn-volver-flotante:hover,
-#btn-avanzar-flotante:hover {
-  color: var(--text-muted);
-}
-#btn-volver-flotante::before { content: '←'; font-size: 0.78rem; margin-right: 3px; }
-#btn-avanzar-flotante::after  { content: '→'; font-size: 0.78rem; margin-left: 3px; }
+#btn-avanzar-flotante:hover { color: var(--text-muted); }
+#btn-volver-flotante::before  { content: '←'; font-size: 0.75rem; margin-right: 3px; }
+#btn-avanzar-flotante::after  { content: '→'; font-size: 0.75rem; margin-left: 3px; }
 [data-theme="light"] #btn-volver-flotante,
-[data-theme="light"] #btn-avanzar-flotante {
-  color: var(--text-muted);
-}
+[data-theme="light"] #btn-avanzar-flotante { color: var(--text-muted); }
 [data-theme="light"] #btn-volver-flotante:hover,
-[data-theme="light"] #btn-avanzar-flotante:hover {
-  color: var(--text-primary);
-}
+[data-theme="light"] #btn-avanzar-flotante:hover { color: var(--text-primary); }
 
 
 /* Compartir header/footer — visible en modo claro */
@@ -852,6 +862,38 @@ body::before {
   border-color: rgba(0,0,0,0.15);
   color: var(--text-muted);
 }
+/* ── Botón pantalla completa (sobre el iframe) ── */
+#btn-fullscreen {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  z-index: 10;
+  width: 32px;
+  height: 32px;
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-faint);
+  transition: var(--t-fast);
+}
+#btn-fullscreen:hover {
+  color: var(--pilar-activo);
+  border-color: var(--border-active);
+}
+#btn-fullscreen svg { display: block; }
+
+/* En fullscreen nativo, el iframe ocupa toda la pantalla */
+#historia-iframe:fullscreen,
+#historia-iframe:-webkit-full-screen {
+  width: 100vw;
+  height: 100vh;
+}
+
 /* ── Historia con iframe (atmósfera propia) ── */
 #historia-iframe-wrap {
   position: relative;
@@ -913,6 +955,7 @@ body::before {
   #capa-interaccion { padding:0.8rem 1rem 1rem; }
   .hero-stats { gap:1.5rem; }
   #buscador-wrap { padding:0.6rem 1.2rem 1rem; }
-  .nav-flecha { display:none; }
+  /* Las flechas ‹ › sí se muestran en móvil — están a 68% de altura, no tapan nada */
+  .nav-flecha-inner { width:32px; height:48px; font-size:1.3rem; }
   #panel-biblioteca { right:0.5rem; width:calc(100vw - 1rem); }
 }
